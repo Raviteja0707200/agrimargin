@@ -60,6 +60,22 @@ function save(){
 }
 if(!fs.existsSync(DATA_FILE))save();
 
+/* ---------- auto-purge: delete records older than 6 months ---------- */
+const RETENTION_DAYS=183;
+function retentionCutoff(){const d=new Date();d.setDate(d.getDate()-RETENTION_DAYS);return d.toISOString().slice(0,10);}
+function purgeOldRecords(){
+  const cutoff=retentionCutoff();let purged=0;
+  for(const [id,entry] of Object.entries(state.records)){
+    if(entry.rec&&entry.rec.date&&entry.rec.date<cutoff){
+      state.rev++;delete state.records[id];state.tombs[id]={at:new Date().toISOString(),rev:state.rev};purged++;
+    }
+  }
+  if(purged>0){save();console.log(`Auto-purge: removed ${purged} records older than ${cutoff}`);}
+}
+// Run on startup and every 24 hours
+purgeOldRecords();
+setInterval(purgeOldRecords,24*3600*1000).unref();
+
 /* ---------- validation ---------- */
 const num=v=>typeof v==='number'&&isFinite(v)&&Math.abs(v)<=1e12;
 const str=(v,m)=>typeof v==='string'?v.replace(/[\u0000-\u001f]+/g,' ').trim().slice(0,m):'';
