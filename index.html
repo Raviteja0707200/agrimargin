@@ -1,0 +1,1612 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AgriMargin – Commodity Trading Management</title>
+<script>
+try{var _t=localStorage.getItem('agrimargin.v1.theme');if(_t==='light'||_t==='dark')document.documentElement.setAttribute('data-theme',_t);}catch(e){}
+</script>
+<style>
+:root{--bg:#0b1015;--bg2:#0e151c;--surface:#141c24;--surface2:#111820;--border:#243241;--text:#e6edf3;--muted:#8b9bab;--accent:#d9a441;--accent-ink:#1a1204;--pos:#34d399;--neg:#f87171;--warn:#fbbf24;--info:#60a5fa;--shadow:0 8px 28px rgba(0,0,0,.32);
+--c1:#d9a441;--c2:#34b38a;--c3:#5b9cf5;--c4:#a78bfa;--c5:#f472a8;--c6:#2dd4cf;--c7:#fb923c;--c8:#94a3b8;--grid:rgba(139,155,171,.16);color-scheme:dark}
+[data-theme=light]{--bg:#f3f5f8;--bg2:#eaeef3;--surface:#ffffff;--surface2:#f8fafb;--border:#d9e1ea;--text:#16202b;--muted:#5d6d7d;--accent:#b7791f;--accent-ink:#fff;--pos:#059669;--neg:#dc2626;--warn:#b45309;--info:#2563eb;--shadow:0 6px 22px rgba(20,40,60,.09);
+--c1:#c58a1a;--c2:#13946b;--c3:#2f6fdc;--c4:#7c5cdb;--c5:#d6407f;--c6:#0e9f9a;--c7:#e0670f;--c8:#64748b;--grid:rgba(60,80,100,.13);color-scheme:light}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-variant-numeric:tabular-nums;background-image:radial-gradient(1100px 480px at 85% -8%,rgba(217,164,65,.07),transparent 60%)}
+h1,h2,h3,h4{margin:0;font-weight:650;letter-spacing:-.012em}
+h2{font-size:22px}h3{font-size:15px}h4{font-size:13px}
+p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:var(--accent)}
+.muted{color:var(--muted)}.pos{color:var(--pos)}.neg{color:var(--neg)}.warn{color:var(--warn)}
+.skip{position:absolute;left:-999px}.skip:focus{left:8px;top:8px;z-index:999;background:var(--accent);color:var(--accent-ink);padding:6px 10px;border-radius:6px}
+#app{display:flex;min-height:100vh}
+#sidebar{width:250px;flex:none;position:sticky;top:0;height:100vh;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:18px 14px;z-index:60;overflow:auto}
+.brand{display:flex;align-items:center;gap:11px;padding:4px 8px 20px}
+.logo{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#e7b857,#b9811f);display:grid;place-items:center;color:#1a1204;flex:none;box-shadow:0 4px 14px rgba(217,164,65,.35)}
+.brand b{display:block;font-size:16px;letter-spacing:-.01em}.brand small{color:var(--muted);font-size:11.5px}
+#nav{display:flex;flex-direction:column;gap:3px}
+#nav a{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;color:var(--muted);text-decoration:none;font-weight:550;position:relative;border:1px solid transparent}
+#nav a:hover{background:var(--surface);color:var(--text)}
+#nav a.active{background:var(--surface);color:var(--text);border-color:var(--border)}
+#nav a.active::before{content:"";position:absolute;left:-14px;top:9px;bottom:9px;width:3px;border-radius:0 3px 3px 0;background:var(--accent)}
+#nav a.active .ic{color:var(--accent)}
+.side-foot{margin-top:auto;padding:14px 8px 0;font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:8px}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--pos);margin-right:6px}.dot.bad{background:var(--neg)}
+#scrim{display:none}
+#main{flex:1;min-width:0}
+#topbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:12px;padding:12px 26px;background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+#topbar h1{font-size:15px;font-weight:600;color:var(--muted)}
+.spacer{flex:1}
+#menuBtn{display:none}
+#view{padding:22px 26px 70px;max-width:1520px;margin:0 auto;outline:none}
+.ic{flex:none;vertical-align:-3px}
+.icon-btn{background:transparent;border:1px solid var(--border);border-radius:9px;width:34px;height:34px;display:inline-grid;place-items:center;color:var(--muted)}
+.icon-btn:hover{color:var(--text);background:var(--surface)}
+.icon-btn.sm{width:30px;height:30px}.icon-btn.danger:hover{color:var(--neg);border-color:var(--neg)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 15px;border-radius:10px;border:1px solid var(--border);background:var(--surface);font-weight:600;white-space:nowrap}
+.btn:hover{border-color:var(--muted)}.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}.btn.primary:hover{filter:brightness(1.08)}
+.btn.danger{background:var(--neg);border-color:var(--neg);color:#fff}
+.btn.ghost{background:transparent}.btn.sm{padding:6px 11px;font-size:13px}
+.link{background:none;border:none;color:var(--accent);text-decoration:underline;padding:0}
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:16px;flex-wrap:wrap}
+.page-head p{margin-top:3px}.head-actions{display:flex;gap:8px;flex-wrap:wrap}
+.card{background:linear-gradient(180deg,var(--surface),var(--surface2));border:1px solid var(--border);border-radius:14px;padding:18px;box-shadow:var(--shadow);min-width:0}
+.card h3{margin-bottom:2px}.card .sub{color:var(--muted);font-size:12.5px;margin-bottom:12px}
+.grid{display:grid;gap:14px;margin-bottom:14px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:2fr 1fr}
+.calc{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);align-items:start}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:12px;margin-bottom:14px}
+.kpi{background:linear-gradient(180deg,var(--surface),var(--surface2));border:1px solid var(--border);border-radius:13px;padding:14px 16px;min-width:0}
+.kpi .l{font-size:12px;color:var(--muted);font-weight:550}.kpi .v{font-size:21px;font-weight:650;margin-top:3px;letter-spacing:-.01em;overflow-wrap:anywhere}
+.kpi .s{font-size:11.5px;color:var(--muted);margin-top:2px}.kpi.accent{border-color:rgba(217,164,65,.45)}
+.periodbar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.chip{background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:5px 13px;font-size:12.5px;color:var(--muted);font-weight:550}
+.chip:hover{color:var(--text)}.chip.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.custom{display:inline-flex;gap:6px;align-items:center;color:var(--muted)}.custom input{width:auto;padding:5px 8px}
+.seg{display:inline-flex;background:var(--bg);border:1px solid var(--border);border-radius:11px;padding:3px;margin-bottom:14px}
+.seg button{background:none;border:none;padding:7px 16px;border-radius:8px;font-weight:600;color:var(--muted)}
+.seg button.on{background:var(--accent);color:var(--accent-ink)}
+.field{margin-bottom:12px;min-width:0}.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;font-weight:600}
+.req{color:var(--neg)}
+input,select,textarea{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:9px 11px;color:var(--text);font:inherit;min-width:0}
+textarea{resize:vertical;min-height:70px}
+input:focus,select:focus,textarea:focus{outline:2px solid color-mix(in srgb,var(--accent) 55%,transparent);outline-offset:0;border-color:var(--accent)}
+input.invalid,select.invalid,textarea.invalid{border-color:var(--neg)}
+.inp{position:relative}.inp .pre,.inp .suf{position:absolute;top:0;bottom:0;display:flex;align-items:center;color:var(--muted);pointer-events:none;font-size:13px}
+.inp .pre{left:11px}.inp .suf{right:11px}.inp.hasPre input{padding-left:26px}.inp.hasSuf input{padding-right:48px}
+.err{display:block;color:var(--neg);font-size:12px;min-height:0;margin-top:3px}.err:empty{display:none}
+.hint{display:block;color:var(--muted);font-size:11.5px;margin-top:3px}.hint:empty{display:none}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.extra-row{display:grid;grid-template-columns:1.3fr 1fr auto;gap:8px;align-items:start;margin-bottom:8px}
+.form-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;padding-top:14px;border-top:1px solid var(--border)}
+.notice{border:1px solid;border-radius:10px;padding:9px 12px;margin-bottom:12px;font-size:13px}
+.notice.info{border-color:rgba(96,165,250,.4);background:rgba(96,165,250,.08)}
+.notice.warn{border-color:rgba(251,191,36,.45);background:rgba(251,191,36,.09)}
+.notice.bad{border-color:rgba(248,113,113,.5);background:rgba(248,113,113,.09)}
+#banner .notice{margin:0;border-radius:0;border-width:0 0 1px}
+.res-hero{padding:14px 16px;border-radius:12px;border:1px solid var(--border);background:var(--bg);margin-bottom:12px}
+.res-hero .l{font-size:12px;color:var(--muted);font-weight:600}.res-hero .v{font-size:30px;font-weight:700;letter-spacing:-.02em;margin:2px 0}
+.rows{display:flex;flex-direction:column}.rows .r{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px dashed var(--border)}
+.rows .r:last-child{border-bottom:none}.rows .r span:first-child{color:var(--muted)}.rows .r b{font-weight:600;text-align:right}
+.bartrack{height:6px;border-radius:4px;background:var(--bg);overflow:hidden;margin-top:4px}.bartrack i{display:block;height:100%;border-radius:4px;background:var(--c1)}
+.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:650;border:1px solid;white-space:nowrap}
+.badge.pos{background:rgba(52,211,153,.12);border-color:rgba(52,211,153,.4)}.badge.neg{background:rgba(248,113,113,.12);border-color:rgba(248,113,113,.45)}
+.badge.warn{background:rgba(251,191,36,.12);border-color:rgba(251,191,36,.45)}.badge.info{background:rgba(96,165,250,.12);border-color:rgba(96,165,250,.4);color:var(--info)}
+.badge.mute{color:var(--muted);border-color:var(--border);background:var(--bg)}
+.filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;align-items:end;margin-bottom:14px;padding:14px}
+.filters .field{margin:0}
+.tbl-wrap{overflow:auto;border:1px solid var(--border);border-radius:13px;background:var(--surface)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{position:sticky;top:0;background:var(--surface2);text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);padding:0;white-space:nowrap;border-bottom:1px solid var(--border)}
+th.plain{padding:10px 12px}
+.th-btn{background:none;border:none;color:inherit;font:inherit;text-transform:inherit;letter-spacing:inherit;padding:10px 12px;display:inline-flex;gap:4px;align-items:center;width:100%}
+th.num .th-btn{justify-content:flex-end}.th-btn:hover{color:var(--text)}
+td{padding:9px 12px;border-bottom:1px solid var(--border);white-space:nowrap}
+tr:last-child td{border-bottom:none}tbody tr:hover td{background:color-mix(in srgb,var(--accent) 5%,transparent)}
+td.num,th.num{text-align:right}td.wrap{white-space:normal;min-width:160px}
+tfoot td{font-weight:650;background:var(--surface2);border-top:1px solid var(--border)}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px}
+.actions{display:flex;gap:5px;justify-content:flex-end}
+.pager{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 4px;color:var(--muted);font-size:12.5px;flex-wrap:wrap}
+.empty{text-align:center;color:var(--muted);padding:34px 16px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.empty.small{padding:22px 10px}.empty .ic{opacity:.55}.empty b{color:var(--text)}
+.chart-card .cwrap{min-height:120px}
+svg.chart{width:100%;height:auto;display:block;overflow:visible}
+svg.chart text{fill:var(--muted);font-size:11px;font-family:inherit}
+svg.chart .gl{stroke:var(--grid);stroke-width:1}
+svg.chart .bar rect{transition:opacity .15s}svg.chart .bar:hover rect{opacity:.75}
+.donut{display:flex;align-items:center;gap:18px;flex-wrap:wrap;justify-content:center}.donut svg{width:170px;height:170px;flex:none}
+.legend{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:12.5px;min-width:150px;flex:1}
+.legend li{display:flex;align-items:center;gap:8px}.legend i{width:10px;height:10px;border-radius:3px;flex:none}.legend .n{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.legend .p{color:var(--muted)}
+.hbar{display:flex;flex-direction:column;gap:9px}.hbar .h{display:grid;grid-template-columns:minmax(80px,130px) 1fr auto;gap:10px;align-items:center;font-size:12.5px}
+.hbar .t{height:12px;background:var(--bg);border-radius:6px;overflow:hidden}.hbar .t i{display:block;height:100%;border-radius:6px;background:var(--c3)}
+.hbar .n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.alist{display:flex;flex-direction:column;gap:8px;max-height:380px;overflow:auto}
+.alert{display:flex;gap:10px;align-items:flex-start;padding:9px 11px;border-radius:10px;border:1px solid var(--border);background:var(--bg);font-size:12.5px}
+.alert .ic{margin-top:2px}.alert.danger{border-color:rgba(248,113,113,.5)}.alert.danger .ic{color:var(--neg)}.alert.warn .ic{color:var(--warn)}.alert.info .ic{color:var(--info)}
+.alert .m{flex:1}.alert small{color:var(--muted);display:block}
+.ins{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;font-size:13px}.ins li{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dashed var(--border);padding-bottom:5px}.ins li:last-child{border:none}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.modal-back{position:fixed;inset:0;background:rgba(3,8,14,.62);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:16px;z-index:200}
+.modal{width:min(620px,100%);max-height:92vh;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:0 24px 70px rgba(0,0,0,.5)}
+.modal.wide{width:min(780px,100%)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:15px 18px;border-bottom:1px solid var(--border)}
+.modal-body{padding:18px;overflow:auto}.modal-foot{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;padding:13px 18px;border-top:1px solid var(--border)}
+.dl{display:grid;grid-template-columns:150px 1fr;gap:8px 14px;margin:0}.dl dt{color:var(--muted)}.dl dd{margin:0;overflow-wrap:anywhere}
+#toasts{position:fixed;right:16px;bottom:16px;display:flex;flex-direction:column;gap:8px;z-index:400;max-width:min(380px,calc(100vw - 32px))}
+.toast{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--pos);padding:10px 14px;border-radius:10px;box-shadow:var(--shadow);font-size:13px;animation:in .2s ease}
+.toast.error{border-left-color:var(--neg)}.toast.warn{border-left-color:var(--warn)}.toast.info{border-left-color:var(--info)}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.auth-back{background:var(--bg);backdrop-filter:none}
+.settings-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px}
+.stack{display:flex;flex-direction:column;gap:10px}.btnrow{display:flex;gap:8px;flex-wrap:wrap}
+.danger-zone{border-color:rgba(248,113,113,.4)}
+@media(max-width:1100px){.calc,.g2,.g3{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:900px){
+ #sidebar{position:fixed;left:0;top:0;transform:translateX(-102%);transition:transform .22s ease;box-shadow:var(--shadow);width:268px}
+ body.nav-open #sidebar{transform:none}
+ body.nav-open #scrim{display:block;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:55}
+ #menuBtn{display:inline-grid}#topbar{padding:10px 14px}#view{padding:16px 14px 70px}
+ #nav a.active::before{left:-14px}
+}
+@media(max-width:560px){.row2,.row3{grid-template-columns:1fr}.extra-row{grid-template-columns:1fr 1fr auto}.dl{grid-template-columns:1fr}.dl dt{margin-top:6px}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.kpi .v{font-size:17px}h2{font-size:19px}.modal-back{align-items:flex-end;padding:0}.modal{border-radius:16px 16px 0 0;max-height:94vh}.periodbar{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}.chip{white-space:nowrap}}
+</style>
+</head>
+<body>
+<a class="skip" href="#view">Skip to content</a>
+<div id="app">
+  <aside id="sidebar" aria-label="Primary">
+    <div class="brand"><div class="logo" id="logo"></div><div><b>AgriMargin</b><small>Commodity Trading Suite</small></div></div>
+    <nav id="nav" aria-label="Main navigation"></nav>
+    <div class="side-foot"><div id="storageState"></div><div>Data stays in this browser.</div></div>
+  </aside>
+  <div id="scrim" data-action="close-nav"></div>
+  <div id="main">
+    <header id="topbar">
+      <button id="menuBtn" class="icon-btn" data-action="open-nav" aria-label="Open navigation menu"></button>
+      <h1 id="pageTitle"></h1>
+      <div class="spacer"></div>
+      <button id="quickAdd" class="btn primary sm" data-action="truck-add"></button>
+      <button id="themeBtn" class="icon-btn" data-action="theme" aria-label="Toggle light/dark theme" title="Toggle theme"></button>
+    </header>
+    <div id="banner" role="alert"></div>
+    <main id="view" tabindex="-1"></main>
+  </div>
+</div>
+<div id="modalRoot"></div>
+<div id="toasts" aria-live="polite"></div>
+<div id="lists"></div>
+<div id="authRoot"></div>
+<noscript><p style="padding:20px">AgriMargin needs JavaScript enabled.</p></noscript>
+
+<script>
+(function(){
+'use strict';
+
+/* =====================================================================
+   CONSTANTS & UTILITIES
+   ===================================================================== */
+const KEY='agrimargin.v1.data', THEME_KEY='agrimargin.v1.theme';
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const r2=n=>Math.round((n+Number.EPSILON)*100)/100;
+const pad2=n=>String(n).padStart(2,'0');
+const nowIso=()=>new Date().toISOString();
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MONL=['January','February','March','April','May','June','July','August','September','October','November','December'];
+function pushTo(map,k,v){let a=map.get(k);if(!a){a=[];map.set(k,a);}a.push(v);}
+function median(a){if(!a.length)return null;const s=a.slice().sort((x,y)=>x-y),m=s.length>>1;return s.length%2?s[m]:(s[m-1]+s[m])/2;}
+const view=()=>$('#view');
+
+const ICONS={
+ grid:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
+ calc:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 12h.01M12 12h.01M16 12h.01M8 16h.01M12 16h.01M16 16h.01"/>',
+ truck:'<path d="M3 6h11v10H3zM14 9h4l3 3v4h-7"/><circle cx="7.5" cy="17.5" r="1.8"/><circle cx="17.5" cy="17.5" r="1.8"/>',
+ list:'<path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/>',
+ chart:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+ settings:'<path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/>',
+ plus:'<path d="M12 5v14M5 12h14"/>',edit:'<path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4"/>',
+ trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/>',
+ eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+ download:'<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',upload:'<path d="M12 16V5M7 10l5-5 5 5M5 20h14"/>',
+ sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+ moon:'<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/>',
+ menu:'<path d="M4 7h16M4 12h16M4 17h16"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',
+ alert:'<path d="M12 3l10 18H2L12 3zM12 10v5M12 18h.01"/>',check:'<path d="M5 12.5l4.5 4.5L19 7"/>',
+ reset:'<path d="M4 12a8 8 0 1 0 3-6.2M4 4v5h5"/>',file:'<path d="M6 3h8l4 4v14H6zM14 3v4h4"/>',
+ inbox:'<path d="M3 13l3-8h12l3 8v6H3zM3 13h5l1 3h6l1-3h5"/>',
+ leaf:'<path d="M12 21V8M12 8c0-3 2-5 5-5 0 3-2 5-5 5zM12 12c0-3-2-5-5-5 0 3 2 5 5 5zM12 16c0-3 2-5 5-5 0 3-2 5-5 5z"/>'
+};
+const ICON=(n,s=18)=>`<svg class="ic" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]||''}</svg>`;
+
+/* ---------- Indian number formatting ---------- */
+function fmtIN(n){
+  if(n==null||!isFinite(n))return '—';
+  const abs=Math.abs(n);
+  const frac=Math.abs(abs-Math.round(abs))>=0.005;
+  const s=abs.toFixed(frac?2:0);
+  let [i,f]=s.split('.');
+  const last3=i.slice(-3);let rest=i.slice(0,-3);
+  if(rest)rest=rest.replace(/\B(?=(\d{2})+(?!\d))/g,',')+',';
+  const neg=n<0&&Number(s)!==0;
+  return (neg?'-':'')+rest+last3+(f?'.'+f:'');
+}
+const inr=n=>{if(n==null||!isFinite(n))return '—';const s=fmtIN(n);return s[0]==='-'?'-₹'+s.slice(1):'₹'+s;};
+function inWords(n){const a=Math.abs(n);if(!isFinite(n)||a<1e5)return '';const s=n<0?'-':'';if(a>=1e7)return s+(a/1e7).toFixed(2)+' Cr';return s+(a/1e5).toFixed(2)+' Lakh';}
+function compact(n){const a=Math.abs(n),s=n<0?'-':'',t=x=>String(Math.round(x*10)/10);if(a>=1e7)return s+t(a/1e7)+'Cr';if(a>=1e5)return s+t(a/1e5)+'L';if(a>=1e3)return s+t(a/1e3)+'K';return s+t(a);}
+const sgnCls=n=>n==null?'':n>0?'pos':n<0?'neg':'';
+
+/* ---------- Dates (all local, stored as YYYY-MM-DD) ---------- */
+function todayStr(){const d=new Date();return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;}
+function validDate(s){if(typeof s!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(s))return false;const [y,m,d]=s.split('-').map(Number);const dt=new Date(Date.UTC(y,m-1,d));return dt.getUTCFullYear()===y&&dt.getUTCMonth()===m-1&&dt.getUTCDate()===d&&y>=1990&&y<=2100;}
+function addDays(s,n){const [y,m,d]=s.split('-').map(Number);const dt=new Date(Date.UTC(y,m-1,d+n));return `${dt.getUTCFullYear()}-${pad2(dt.getUTCMonth()+1)}-${pad2(dt.getUTCDate())}`;}
+function daysBetween(a,b){const f=s=>{const [y,m,d]=s.split('-').map(Number);return Date.UTC(y,m-1,d);};return Math.round((f(b)-f(a))/864e5);}
+function fmtDate(s){if(!validDate(s))return s||'—';const [y,m,d]=s.split('-').map(Number);return `${d} ${MON[m-1]} ${y}`;}
+function fmtShort(s){const [,m,d]=s.split('-').map(Number);return `${d} ${MON[m-1]}`;}
+function fmtMonth(k){const [y,m]=k.split('-');return `${MON[+m-1]} ${y.slice(2)}`;}
+function fmtMonthLong(k){const [y,m]=k.split('-');return `${MONL[+m-1]} ${y}`;}
+function weekStart(s){const [y,m,d]=s.split('-').map(Number);const dow=(new Date(Date.UTC(y,m-1,d)).getUTCDay()+6)%7;return addDays(s,-dow);}
+
+/* ---------- Number parsing / validation ---------- */
+function parseNum(raw){
+  const s=String(raw==null?'':raw).trim().replace(/,/g,'');
+  if(s==='')return {blank:true};
+  if(!/^[-+]?(\d+\.?\d*|\.\d+)$/.test(s))return {err:'enter a valid number'};
+  const v=Number(s);
+  if(!isFinite(v)||Math.abs(v)>1e12)return {err:'value is out of range'};
+  return {v};
+}
+function checkNum(raw,{label='Value',required=false,gt,gte}={}){
+  const p=parseNum(raw);
+  if(p.err)return {err:`${label}: ${p.err}`};
+  if(p.blank)return required?{err:`${label} is required`,blank:true}:{v:null};
+  if(gt!=null&&!(p.v>gt))return {err:`${label} must be greater than ${gt}`};
+  if(gte!=null&&!(p.v>=gte))return {err:gte===0?`${label} cannot be negative`:`${label} must be at least ${gte}`};
+  return {v:p.v};
+}
+const cleanStr=(s,max)=>String(s==null?'':s).replace(/[\u0000-\u001f]+/g,' ').trim().slice(0,max);
+const normTruck=s=>cleanStr(s,30).replace(/\s+/g,' ').toUpperCase();
+const truckKey=s=>normTruck(s).replace(/[\s\-]/g,'');
+function csvCell(v){if(v==null)return '';if(typeof v==='number')return String(v);let s=String(v);if(/^[=+\-@\t\r]/.test(s))s="'"+s;return /[",\n\r]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;}
+function toCSV(rows){return '\ufeff'+rows.map(r=>r.map(csvCell).join(',')).join('\r\n')+'\r\n';}
+function download(name,content,mime){
+  const blob=content instanceof Blob?content:new Blob([content],{type:mime});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();
+  setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},1500);
+}
+const stamp=()=>todayStr().replace(/-/g,'');
+
+/* =====================================================================
+   DATA MODEL, METRICS
+   ===================================================================== */
+const TYPES={truck:'Truck',margin:'Margin-only',standard:'Standard'};
+const DEFAULTS={id:'',type:'truck',date:'',commodity:'',truck:'',qty:0,sellPrice:null,procPrice:null,margin:null,expenses:null,customer:'',destination:'',remarks:'',createdAt:'',updatedAt:''};
+
+function expensesOf(t){if(t.type!=='standard'||!t.expenses)return 0;const e=t.expenses;return (e.transport||0)+(e.loading||0)+(e.other||0)+(e.extras||[]).reduce((s,x)=>s+(x.amount||0),0);}
+/* INTERNAL ONLY: total profit is never rendered for truck / margin-only records. */
+function profitInternal(t){return t.type==='standard'?t.qty*(t.sellPrice-t.procPrice)-expensesOf(t):t.qty*t.margin;}
+const effMargin=t=>profitInternal(t)/t.qty;
+const salesOf=t=>t.sellPrice==null?0:t.qty*t.sellPrice;
+function standardMetrics(t){
+  const q=t.qty,proc=q*t.procPrice,sales=q*t.sellPrice,exp=expensesOf(t),gross=sales-proc,net=gross-exp;
+  return {proc:r2(proc),sales:r2(sales),exp:r2(exp),gross:r2(gross),net:r2(net),netPerQ:r2(net/q),pct:sales>0?r2(net/sales*100):null,totalCost:r2(proc+exp),breakEven:r2((proc+exp)/q)};
+}
+function missingFields(r){
+  const m=[];
+  if(!r.commodity)m.push('commodity');
+  if(r.type==='truck'){if(!r.customer)m.push('customer');if(!r.destination)m.push('destination');}
+  return m;
+}
+function statusOf(r){if(effMargin(r)<0)return 'Loss';return missingFields(r).length?'Incomplete':'Complete';}
+const statusCls=s=>s==='Loss'?'neg':s==='Incomplete'?'warn':'pos';
+
+function aggregate(list){
+  const A={n:list.length,truckEntries:0,truckQty:0,qty:0,sales:0,proc:0,procN:0,qtyPriced:0,_p:0,maxM:null,minM:null,maxRec:null,minRec:null,days:0};
+  const days=new Set();
+  for(const r of list){
+    A.qty+=r.qty;days.add(r.date);
+    if(r.type==='truck'){A.truckEntries++;A.truckQty+=r.qty;}
+    if(r.sellPrice!=null){A.sales+=r.qty*r.sellPrice;A.qtyPriced+=r.qty;}
+    if(r.type==='standard'){A.proc+=r.qty*r.procPrice;A.procN++;}
+    A._p+=profitInternal(r);
+    const m=effMargin(r);
+    if(A.maxM===null||m>A.maxM){A.maxM=m;A.maxRec=r;}
+    if(A.minM===null||m<A.minM){A.minM=m;A.minRec=r;}
+  }
+  A.days=days.size;
+  A.wPrice=A.qtyPriced>0?A.sales/A.qtyPriced:null;   // quantity-weighted
+  A.wMargin=A.qty>0?A._p/A.qty:null;                  // quantity-weighted
+  A.avgTruckQty=A.truckEntries?A.truckQty/A.truckEntries:null;
+  return A;
+}
+
+/* ---------- validation / sanitising (used for import and load) ---------- */
+function sanitizeRecord(raw){
+  if(!raw||typeof raw!=='object'||Array.isArray(raw))return {error:'not an object'};
+  if(!TYPES[raw.type])return {error:'unknown type'};
+  const id=cleanStr(raw.id,40);if(!id)return {error:'missing id'};
+  if(!validDate(raw.date))return {error:'invalid date'};
+  const isN=v=>(typeof v==='number'||(typeof v==='string'&&v.trim()!==''))&&isFinite(Number(v))&&Math.abs(Number(v))<=1e12;
+  if(!isN(raw.qty)||Number(raw.qty)<=0)return {error:'invalid quantity'};
+  const rec=Object.assign({},DEFAULTS,{id,type:raw.type,date:raw.date,qty:Number(raw.qty),commodity:cleanStr(raw.commodity,80),truck:normTruck(raw.truck),customer:cleanStr(raw.customer,80),destination:cleanStr(raw.destination,80),remarks:cleanStr(raw.remarks,500)});
+  const t=Date.parse(raw.createdAt);rec.createdAt=isFinite(t)?new Date(t).toISOString():nowIso();
+  const u=Date.parse(raw.updatedAt);rec.updatedAt=isFinite(u)?new Date(u).toISOString():rec.createdAt;
+  if(raw.sample===true)rec.sample=true;
+  if(raw.type==='truck'){
+    if(!isN(raw.sellPrice)||Number(raw.sellPrice)<=0)return {error:'invalid selling price'};
+    if(!isN(raw.margin))return {error:'invalid margin'};
+    rec.sellPrice=Number(raw.sellPrice);rec.margin=Number(raw.margin);
+  }else if(raw.type==='margin'){
+    if(!isN(raw.margin))return {error:'invalid margin'};
+    rec.margin=Number(raw.margin);
+  }else{
+    if(!isN(raw.procPrice)||Number(raw.procPrice)<0)return {error:'invalid procurement price'};
+    if(!isN(raw.sellPrice)||Number(raw.sellPrice)<0)return {error:'invalid selling price'};
+    rec.procPrice=Number(raw.procPrice);rec.sellPrice=Number(raw.sellPrice);
+    const e=raw.expenses||{};const ex={transport:0,loading:0,other:0,extras:[]};
+    for(const k of ['transport','loading','other']){if(e[k]==null||e[k]==='')continue;if(!isN(e[k])||Number(e[k])<0)return {error:'invalid '+k+' expense'};ex[k]=Number(e[k]);}
+    if(e.extras!=null){if(!Array.isArray(e.extras)||e.extras.length>30)return {error:'invalid extra expenses'};
+      for(const x of e.extras){if(!x||!isN(x.amount)||Number(x.amount)<0)return {error:'invalid extra expense amount'};ex.extras.push({name:cleanStr(x.name,40)||'Expense',amount:Number(x.amount)});}}
+    rec.expenses=ex;rec.truck='';
+  }
+  return {rec};
+}
+
+/* =====================================================================
+   PERSISTENCE
+   ===================================================================== */
+const DB={records:[],seq:0,tomb:{},dirty:new Set(),syncRev:0,serverId:'',lastSync:'',storageOk:false,writeFailed:false,corrupt:false,dropped:0,mem:null};
+function storageProbe(){try{const k='__agrimargin_probe';localStorage.setItem(k,'1');localStorage.removeItem(k);return true;}catch(e){return false;}}
+function resetSyncMeta(){DB.tomb={};DB.dirty=new Set();DB.syncRev=0;DB.serverId='';DB.lastSync='';}
+function dbLoad(){
+  DB.storageOk=storageProbe();DB.corrupt=false;DB.dropped=0;
+  let txt=null;
+  if(DB.storageOk){try{txt=localStorage.getItem(KEY);}catch(e){DB.storageOk=false;}}
+  else txt=DB.mem;
+  if(!txt){DB.records=[];DB.seq=0;resetSyncMeta();return;}
+  try{
+    const data=JSON.parse(txt);const arr=Array.isArray(data)?data:data&&data.records;
+    if(!Array.isArray(arr))throw new Error('bad shape');
+    const seen=new Set(),out=[];
+    for(const raw of arr){const s=sanitizeRecord(raw);if(s.rec&&!seen.has(s.rec.id)){seen.add(s.rec.id);out.push(s.rec);}else DB.dropped++;}
+    DB.records=out;DB.seq=Math.max(0,parseInt(data&&data.seq,10)||0);
+    resetSyncMeta();
+    if(data&&data.tomb&&typeof data.tomb==='object'&&!Array.isArray(data.tomb)){for(const [k,v] of Object.entries(data.tomb)){if(typeof v==='string'&&isFinite(Date.parse(v)))DB.tomb[cleanStr(k,40)]=v;}}
+    DB.dirty=new Set((data&&Array.isArray(data.dirty)?data.dirty:[]).filter(id=>seen.has(id)));
+    DB.syncRev=Math.max(0,parseInt(data&&data.syncRev,10)||0);
+    DB.serverId=data&&typeof data.serverId==='string'?data.serverId.slice(0,64):'';
+    DB.lastSync=data&&typeof data.lastSync==='string'&&isFinite(Date.parse(data.lastSync))?data.lastSync:'';
+  }catch(e){
+    DB.corrupt=true;DB.records=[];resetSyncMeta();
+    try{localStorage.setItem(KEY+'.corrupt-backup',txt);}catch(_){}
+  }
+}
+function persist(noSync){const ok=persistRaw();if(!noSync)scheduleSync();return ok;}
+function persistRaw(){
+  const payload=JSON.stringify({app:'AgriMargin',version:1,savedAt:nowIso(),seq:DB.seq,tomb:DB.tomb,dirty:[...DB.dirty],syncRev:DB.syncRev,serverId:DB.serverId,lastSync:DB.lastSync,records:DB.records});
+  if(!DB.storageOk){DB.mem=payload;DB.writeFailed=true;updateChrome();return false;}
+  try{localStorage.setItem(KEY,payload);DB.writeFailed=false;updateChrome();return true;}
+  catch(e){DB.writeFailed=true;DB.mem=payload;updateChrome();toast('Could not write to browser storage (it may be full or blocked). Your changes are kept for this session only – export a JSON backup now.','error');return false;}
+}
+function nextId(extra){
+  const all=DB.records.concat(extra||[]);let max=DB.seq||0;const have=new Set(all.map(r=>r.id));
+  for(const r of all){const m=/^TXN-(\d+)$/.exec(r.id);if(m)max=Math.max(max,+m[1]);}
+  let n=max+1,id;do{id='TXN-'+String(n++).padStart(4,'0');}while(have.has(id));DB.seq=n-1;return id;
+}
+function dbAdd(fields){const rec=Object.assign({},DEFAULTS,fields,{id:nextId(),createdAt:nowIso(),updatedAt:nowIso()});DB.records.push(rec);DB.dirty.add(rec.id);delete DB.tomb[rec.id];persist();return rec;}
+function dbUpdate(id,fields){const i=DB.records.findIndex(r=>r.id===id);if(i<0)return null;const old=DB.records[i];DB.records[i]=Object.assign({},DEFAULTS,old,fields,{id:old.id,createdAt:old.createdAt,updatedAt:nowIso()});DB.dirty.add(old.id);persist();return DB.records[i];}
+function dbRemove(id){const n=DB.records.length;DB.records=DB.records.filter(r=>r.id!==id);if(DB.records.length<n){DB.dirty.delete(id);DB.tomb[id]=nowIso();}persist();return DB.records.length<n;}
+/* bulk replace: records that vanish become tombstones, new/changed ones are marked for upload */
+function dbSetRecords(next,opts){
+  opts=opts||{};const now=nowIso();
+  const old=new Map(DB.records.map(r=>[r.id,r])),keep=new Set(next.map(r=>r.id));
+  old.forEach((r,id)=>{if(!keep.has(id)){DB.tomb[id]=now;DB.dirty.delete(id);}});
+  DB.records=next.map(r=>{
+    const o=old.get(r.id);
+    if(!o){DB.dirty.add(r.id);delete DB.tomb[r.id];return opts.touch?Object.assign({},r,{updatedAt:now}):r;}
+    if(opts.touch&&JSON.stringify(o)!==JSON.stringify(r)){DB.dirty.add(r.id);return Object.assign({},r,{createdAt:o.createdAt,updatedAt:now});}
+    return r;
+  });
+  persist();
+}
+const getRec=id=>DB.records.find(r=>r.id===id);
+
+/* =====================================================================
+   STATE
+   ===================================================================== */
+const PERIODS=[['today','Today'],['7','Last 7 Days'],['30','Last 30 Days'],['90','Last 90 Days'],['month','This Month'],['prev','Previous Month'],['custom','Custom'],['all','All Time']];
+const S={
+  view:'overview',period:{key:'all',from:'',to:''},
+  calc:{editingId:null,draft:null},
+  tk:{q:'',from:'',to:'',commodity:'',customer:'',sort:{key:'date',dir:'desc'},page:1},
+  tx:{q:'',type:'',commodity:'',customer:'',status:'',from:'',to:'',sort:{key:'date',dir:'desc'},page:1},
+  report:'daily'
+};
+const PAGE=25;
+function periodRange(p){
+  const t=todayStr();
+  switch(p.key){
+    case 'today':return [t,t];
+    case '7':return [addDays(t,-6),t];
+    case '30':return [addDays(t,-29),t];
+    case '90':return [addDays(t,-89),t];
+    case 'month':{const [y,m]=t.split('-').map(Number);return [`${y}-${pad2(m)}-01`,`${y}-${pad2(m)}-${pad2(new Date(Date.UTC(y,m,0)).getUTCDate())}`];}
+    case 'prev':{let [y,m]=t.split('-').map(Number);m--;if(m===0){m=12;y--;}return [`${y}-${pad2(m)}-01`,`${y}-${pad2(m)}-${pad2(new Date(Date.UTC(y,m,0)).getUTCDate())}`];}
+    case 'custom':return [p.from||'0000-01-01',p.to||'9999-12-31'];
+    default:return ['0000-01-01','9999-12-31'];
+  }
+}
+function periodRecords(){const [a,b]=periodRange(S.period);return DB.records.filter(r=>r.date>=a&&r.date<=b);}
+function rangeLabel(){if(S.period.key==='all')return 'All time';const [a,b]=periodRange(S.period);if(S.period.key==='custom'){return `${a<'1000'?'Beginning':fmtDate(a)} – ${b>'9000'?'Today onwards':fmtDate(b)}`;}return `${fmtDate(a)} – ${fmtDate(b)}`;}
+
+/* =====================================================================
+   UI PRIMITIVES: toast, modal, confirm
+   ===================================================================== */
+function toast(msg,type='ok'){
+  const el=document.createElement('div');el.className='toast'+(type==='ok'?'':' '+type);el.setAttribute('role',type==='error'?'alert':'status');el.textContent=msg;
+  $('#toasts').appendChild(el);setTimeout(()=>el.remove(),type==='error'?6500:3800);
+}
+const Modal={prev:null,resolver:null,downOnBack:false,
+  open({title,body,footer='',wide=false}){
+    this.close();this.prev=document.activeElement;
+    const root=$('#modalRoot');
+    root.innerHTML=`<div class="modal-back" id="modalBack"><div class="modal${wide?' wide':''}" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="modal-head"><h3 id="mTitle">${esc(title)}</h3><button class="icon-btn sm" data-action="modal-close" aria-label="Close dialog">${ICON('x')}</button></div><div class="modal-body">${body}</div>${footer?`<div class="modal-foot">${footer}</div>`:''}</div></div>`;
+    const f=$('input:not([type=hidden]):not([disabled]),select,textarea',root.querySelector('.modal-body'));if(f)f.focus();
+  },
+  close(){
+    const root=$('#modalRoot');if(!root.firstChild&&!this.resolver)return;
+    root.innerHTML='';
+    if(this.resolver){const r=this.resolver;this.resolver=null;r(false);}
+    if(this.prev&&document.contains(this.prev)){try{this.prev.focus();}catch(e){}}this.prev=null;
+  },
+  isOpen(){return !!$('#modalRoot').firstChild;}
+};
+function confirmDialog({title,message,confirmLabel='Confirm',danger=false,typed=''}){
+  return new Promise(res=>{
+    Modal.open({title,body:`<p>${message}</p>${typed?`<div class="field" style="margin-top:12px"><label for="typedConfirm">Type <b>${esc(typed)}</b> to confirm</label><input id="typedConfirm" autocomplete="off"></div>`:''}`,
+      footer:`<button class="btn" data-action="confirm-no">Cancel</button><button class="btn ${danger?'danger':'primary'}" data-action="confirm-yes" ${typed?'disabled':''}>${esc(confirmLabel)}</button>`});
+    Modal.resolver=res;
+  });
+}
+function resolveConfirm(v){const r=Modal.resolver;Modal.resolver=null;Modal.close();if(r)r(v);}
+
+function showErrors(form,errors){
+  $$('.invalid',form).forEach(e=>e.classList.remove('invalid'));
+  $$('[data-err]',form).forEach(e=>{e.textContent='';});
+  let first=null;
+  for(const k of Object.keys(errors)){
+    const msg=typeof errors[k]==='string'?errors[k]:errors[k].msg;
+    const m=$(`[data-err="${k}"]`,form);if(m)m.textContent=msg;
+    const inp=form.elements[k]||$(`[data-fk="${k}"]`,form);if(inp&&inp.classList){inp.classList.add('invalid');if(!first)first=inp;}
+  }
+  return first;
+}
+function field(id,label,o={}){
+  const name=o.name||id;
+  const inp=`<input id="${id}" name="${name}" type="${o.type||'text'}" value="${esc(o.value==null?'':o.value)}" placeholder="${esc(o.ph||'')}" ${o.list?`list="${o.list}"`:''} ${o.num?'inputmode="decimal"':''} ${o.max?`maxlength="${o.max}"`:''} autocomplete="off">`;
+  const wrapped=(o.pre||o.suf)?`<div class="inp ${o.pre?'hasPre':''} ${o.suf?'hasSuf':''}">${o.pre?`<span class="pre">${o.pre}</span>`:''}${inp}${o.suf?`<span class="suf">${o.suf}</span>`:''}</div>`:inp;
+  return `<div class="field"><label for="${id}">${label}${o.req?' <span class="req" aria-hidden="true">*</span>':''}</label>${wrapped}<small class="hint">${o.hint||''}</small><small class="err" data-err="${name}"></small></div>`;
+}
+
+/* =====================================================================
+   CHARTS (dependency-free SVG)
+   ===================================================================== */
+const CW=()=>window.innerWidth<700?360:640;
+const emptyChart=m=>`<div class="empty small">${ICON('inbox',28)}<p>${esc(m||'No data for the selected period')}</p></div>`;
+function niceScale(min,max,ticks=4){
+  if(min===max)max=min+1;
+  const raw=(max-min)/ticks,mag=Math.pow(10,Math.floor(Math.log10(raw))),n=raw/mag;
+  const step=(n<=1?1:n<=2?2:n<=2.5?2.5:n<=5?5:10)*mag;
+  const lo=Math.floor(min/step+1e-9)*step,hi=Math.ceil(max/step-1e-9)*step,t=[];
+  for(let i=0;lo+i*step<=hi+step/2;i++)t.push(lo+i*step);
+  return {lo,hi:Math.max(hi,lo+step),ticks:t};
+}
+function axes(items,vals,opts={}){
+  const W=CW(),H=opts.h||250,L=50,R=12,T=14,B=36,pw=W-L-R,ph=H-T-B;
+  const sc=niceScale(Math.min(0,...vals),Math.max(0,...vals));
+  const y=v=>T+ph-(v-sc.lo)/(sc.hi-sc.lo)*ph;
+  let g='';
+  sc.ticks.forEach(t=>{const yy=y(t);g+=`<line class="gl" x1="${L}" x2="${W-R}" y1="${yy}" y2="${yy}"/><text x="${L-7}" y="${yy+4}" text-anchor="end">${compact(t)}</text>`;});
+  return {W,H,L,R,T,B,pw,ph,sc,y,g};
+}
+function xLabels(items,x,ax){
+  const every=Math.max(1,Math.ceil(items.length/Math.max(1,Math.floor(ax.pw/46))));
+  return items.map((it,i)=>i%every===0?`<text x="${x(i)}" y="${ax.H-ax.B+16}" text-anchor="middle">${esc(it.label)}</text>`:'').join('');
+}
+function barChart(items,{fmt=fmtIN,color='var(--c1)',unit=''}={}){
+  if(!items.length)return emptyChart();
+  const ax=axes(items,items.map(i=>i.value)),gap=ax.pw/items.length,bw=Math.min(42,gap*.7);
+  const x=i=>ax.L+gap*i+gap/2,y0=ax.y(0);
+  let bars='';
+  items.forEach((it,i)=>{const yy=ax.y(it.value),h=Math.max(1,Math.abs(yy-y0));bars+=`<g class="bar"><rect x="${x(i)-bw/2}" y="${it.value>=0?yy:y0}" width="${bw}" height="${h}" rx="3" style="fill:${it.value<0?'var(--neg)':color}"/><title>${esc(it.label)}: ${esc(fmt(it.value))}${unit}</title></g>`;});
+  return `<svg class="chart" viewBox="0 0 ${ax.W} ${ax.H}" role="img" aria-label="Bar chart">${ax.g}${bars}${xLabels(items,x,ax)}</svg>`;
+}
+function lineChart(items,{fmt=fmtIN,color='var(--c1)',unit=''}={}){
+  if(!items.length)return emptyChart();
+  const ax=axes(items,items.map(i=>i.value));
+  const x=i=>items.length===1?ax.L+ax.pw/2:ax.L+ax.pw*i/(items.length-1);
+  const pts=items.map((it,i)=>[x(i),ax.y(it.value)]);
+  const d=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+  const area=items.length>1?`<path d="${d} L${pts[pts.length-1][0].toFixed(1)} ${ax.y(0)} L${pts[0][0].toFixed(1)} ${ax.y(0)}Z" style="fill:${color};opacity:.12"/>`:'';
+  const dots=pts.map((p,i)=>`<g class="bar"><circle cx="${p[0]}" cy="${p[1]}" r="4" style="fill:${color};stroke:var(--surface);stroke-width:2"/><title>${esc(items[i].label)}: ${esc(fmt(items[i].value))}${unit}</title></g>`).join('');
+  return `<svg class="chart" viewBox="0 0 ${ax.W} ${ax.H}" role="img" aria-label="Line chart">${ax.g}${area}<path d="${d}" fill="none" style="stroke:${color};stroke-width:2.4" stroke-linejoin="round" stroke-linecap="round"/>${dots}${xLabels(items,x,ax)}</svg>`;
+}
+function doughnut(items,{fmt=fmtIN,unit=''}={}){
+  items=items.filter(i=>i.value>0).sort((a,b)=>b.value-a.value);
+  const total=items.reduce((s,i)=>s+i.value,0);
+  if(!(total>0))return emptyChart();
+  if(items.length>8){const rest=items.slice(7).reduce((s,i)=>s+i.value,0);items=items.slice(0,7).concat([{label:'Others',value:rest}]);}
+  const R=64,C=2*Math.PI*R;let off=0,circles='';
+  items.forEach((it,i)=>{const len=it.value/total*C,vis=items.length>1?Math.max(len-1.6,.5):len;
+    circles+=`<circle cx="90" cy="90" r="${R}" fill="none" style="stroke:var(--c${i+1});stroke-width:26" stroke-dasharray="${vis.toFixed(2)} ${(C-vis).toFixed(2)}" stroke-dashoffset="${(-off).toFixed(2)}" transform="rotate(-90 90 90)"><title>${esc(it.label)}: ${esc(fmt(it.value))}${unit} (${(it.value/total*100).toFixed(1)}%)</title></circle>`;off+=len;});
+  const legend=items.map((it,i)=>`<li><i style="background:var(--c${i+1})"></i><span class="n" title="${esc(it.label)}">${esc(it.label)}</span><span>${esc(fmt(it.value))}</span><span class="p">${(it.value/total*100).toFixed(1)}%</span></li>`).join('');
+  return `<div class="donut"><svg viewBox="0 0 180 180" role="img" aria-label="Doughnut chart">${circles}<text x="90" y="87" text-anchor="middle" style="font-size:10px">Total</text><text x="90" y="104" text-anchor="middle" style="font-size:14px;font-weight:650;fill:var(--text)">${esc(compact(total))}</text></svg><ul class="legend">${legend}</ul></div>`;
+}
+function hbarChart(items,{fmt=fmtIN,unit=''}={}){
+  items=items.filter(i=>i.value>0);if(!items.length)return emptyChart();
+  const max=Math.max(...items.map(i=>i.value));
+  return `<div class="hbar">${items.map(i=>`<div class="h"><span class="n" title="${esc(i.label)}">${esc(i.label)}</span><span class="t"><i style="width:${(i.value/max*100).toFixed(1)}%"></i></span><b>${esc(fmt(i.value))}${unit}</b></div>`).join('')}</div>`;
+}
+const chartCard=(t,s,body,cls='')=>`<div class="card chart-card ${cls}"><h3>${t}</h3><p class="sub">${s}</p><div class="cwrap">${body}</div></div>`;
+
+/* ---------- chart data builders ---------- */
+function bucketize(list){
+  if(!list.length)return {mode:'day',items:[]};
+  const dates=list.map(r=>r.date).sort(),span=daysBetween(dates[0],dates[dates.length-1]),mode=span>62?'month':'day';
+  const g=new Map();list.forEach(r=>pushTo(g,mode==='day'?r.date:r.date.slice(0,7),r));
+  return {mode,items:[...g.keys()].sort().map(k=>Object.assign({key:k,label:mode==='day'?fmtShort(k):fmtMonth(k)},aggregate(g.get(k))))};
+}
+function volumeBy(list,monthly){
+  const g=new Map();list.forEach(r=>{const k=monthly?r.date.slice(0,7):r.date;g.set(k,(g.get(k)||0)+r.qty);});
+  let keys=[...g.keys()].sort();if(!monthly)keys=keys.slice(-45);
+  return keys.map(k=>({label:monthly?fmtMonth(k):fmtShort(k),value:r2(g.get(k))}));
+}
+function sumBy(list,keyFn,valFn){const g=new Map();list.forEach(r=>{const k=keyFn(r);g.set(k,(g.get(k)||0)+valFn(r));});return [...g].map(([label,value])=>({label,value:r2(value)}));}
+function expenseBreakdown(list){
+  const g=new Map();
+  list.filter(r=>r.type==='standard').forEach(r=>{const e=r.expenses||{};
+    const add=(k,v)=>{if(v>0)g.set(k,(g.get(k)||0)+v);};
+    add('Transportation',e.transport);add('Loading',e.loading);add('Other',e.other);(e.extras||[]).forEach(x=>add(x.name||'Expense',x.amount));});
+  return [...g].map(([label,value])=>({label,value:r2(value)}));
+}
+
+/* =====================================================================
+   ALERTS & INSIGHTS
+   ===================================================================== */
+function computeAlerts(all){
+  const out=[];
+  const push=(rec,sev,kind,msg,ids)=>out.push({id:rec.id,ids:ids||[rec.id],date:rec.date,sev,kind,msg});
+  const byC=new Map();all.forEach(r=>pushTo(byC,r.commodity||'',r));
+  const cStats=new Map();byC.forEach((arr,k)=>cStats.set(k,{n:arr.length,wM:aggregate(arr).wMargin,med:median(arr.filter(x=>x.sellPrice!=null).map(x=>x.sellPrice)),nP:arr.filter(x=>x.sellPrice!=null).length}));
+  const medQty=median(all.map(r=>r.qty));
+  const dup=new Map();all.forEach(r=>{if(r.truck)pushTo(dup,truckKey(r.truck)+'|'+r.date,r);});
+  dup.forEach(arr=>{if(arr.length>1)push(arr[0],'warn','duplicate',`${arr.length} entries for truck ${arr[0].truck} on ${fmtDate(arr[0].date)} (${arr.map(x=>x.id).join(', ')}). Confirm these are separate trips.`,arr.map(x=>x.id));});
+  for(const r of all){
+    const m=effMargin(r),cs=cStats.get(r.commodity||'');
+    const who=`${r.id}${r.truck?' · '+r.truck:''}${r.commodity?' · '+r.commodity:''}`;
+    if(m<0)push(r,'danger','negative',`Negative margin of ${inr(m)}/Qtl on ${who}.`);
+    else if(cs&&cs.n>=5&&cs.wM>0&&m<0.4*cs.wM)push(r,'warn','low',`Unusually low margin ${inr(m)}/Qtl on ${who} (typical ≈ ${inr(cs.wM)}/Qtl).`);
+    if(r.sellPrice!=null&&cs&&cs.nP>=4&&cs.med>0){const dev=(r.sellPrice-cs.med)/cs.med;
+      if(Math.abs(dev)>0.2)push(r,'warn','price',`Selling price ${inr(r.sellPrice)} on ${who} is ${Math.abs(dev*100).toFixed(0)}% ${dev>0?'above':'below'} the typical ${inr(cs.med)}.`);}
+    if(all.length>=5&&medQty>0&&r.qty>2*medQty)push(r,'info','large',`Large quantity of ${fmtIN(r.qty)} Qtl on ${who} (typical ≈ ${fmtIN(medQty)} Qtl).`);
+    const mf=missingFields(r);if(mf.length)push(r,'info','missing',`Missing details on ${who}: ${mf.join(', ')}.`);
+  }
+  const ord={danger:0,warn:1,info:2};
+  return out.sort((a,b)=>ord[a.sev]-ord[b.sev]||(a.date<b.date?1:-1));
+}
+function alertsInPeriod(){const [a,b]=periodRange(S.period);return computeAlerts(DB.records).filter(x=>x.date>=a&&x.date<=b);}
+function alertListHTML(alerts,limit){
+  if(!alerts.length)return `<div class="empty small">${ICON('check',28)}<p>No alerts for this period.</p></div>`;
+  const shown=limit?alerts.slice(0,limit):alerts;
+  return `<div class="alist">${shown.map(a=>`<div class="alert ${a.sev}">${ICON(a.sev==='info'?'inbox':'alert',16)}<div class="m">${esc(a.msg)}<small>${fmtDate(a.date)} · ${a.kind==='negative'?'Negative margin':a.kind==='low'?'Low margin':a.kind==='price'?'Price outlier':a.kind==='large'?'Large quantity':a.kind==='duplicate'?'Possible duplicate':'Missing details'}</small></div><button class="btn sm ghost" data-action="tx-view" data-id="${esc(a.id)}">View</button></div>`).join('')}${limit&&alerts.length>limit?`<p class="muted" style="text-align:center">+${alerts.length-limit} more — see Analytics</p>`:''}</div>`;
+}
+function groupStats(list,keyFn,labelFn){
+  const g=new Map();list.forEach(r=>pushTo(g,keyFn(r),r));
+  return [...g].map(([key,arr])=>Object.assign({key,label:labelFn?labelFn(key,arr):key},aggregate(arr)));
+}
+function insightsHTML(list){
+  if(!list.length)return '';
+  const com=groupStats(list,r=>r.commodity||'Unspecified').sort((a,b)=>b.wMargin-a.wMargin).slice(0,5);
+  const low=list.slice().sort((a,b)=>effMargin(a)-effMargin(b)).slice(0,5);
+  const neg=list.filter(r=>effMargin(r)<0).length;
+  const mo=groupStats(list,r=>r.date.slice(0,7)).sort((a,b)=>a.key<b.key?-1:1);
+  let growth='<li><span class="muted">Needs at least two months of data in the selected period.</span></li>';
+  if(mo.length>=2){const c=mo[mo.length-1],p=mo[mo.length-2],g=p.qty>0?(c.qty-p.qty)/p.qty*100:null;
+    growth=`<li><span>${fmtMonthLong(c.key)}</span><b>${fmtIN(c.qty)} Qtl</b></li><li><span>${fmtMonthLong(p.key)}</span><b>${fmtIN(p.qty)} Qtl</b></li><li><span>Change</span><b class="${sgnCls(g)}">${g==null?'—':(g>0?'+':'')+g.toFixed(1)+'%'}</b></li>`;}
+  const days=groupStats(list,r=>r.date).sort((a,b)=>b.qty-a.qty).slice(0,5);
+  const li=(a,b)=>`<li><span>${a}</span><b>${b}</b></li>`;
+  return `<section class="grid g2" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">
+   <div class="card"><h3>Best commodities by margin</h3><p class="sub">Quantity-weighted ₹/Qtl</p><ul class="ins">${com.map(c=>li(esc(c.label),`<span class="${sgnCls(c.wMargin)}">${inr(c.wMargin)}</span>`)).join('')}</ul></div>
+   <div class="card"><h3>Lowest-margin transactions</h3><p class="sub">${neg} negative-margin transaction${neg===1?'':'s'} in period</p><ul class="ins">${low.map(r=>li(`${esc(r.id)} ${esc(r.truck||r.commodity||'')}`,`<span class="${sgnCls(effMargin(r))}">${inr(effMargin(r))}</span>`)).join('')}</ul></div>
+   <div class="card"><h3>Volume growth</h3><p class="sub">Latest month vs previous</p><ul class="ins">${growth}</ul></div>
+   <div class="card"><h3>High-volume days</h3><p class="sub">Top days by quantity</p><ul class="ins">${days.map(d=>li(fmtDate(d.key),`${fmtIN(d.qty)} Qtl`)).join('')}</ul></div>
+  </section>`;
+}
+
+/* ---------- reports ---------- */
+function profitSummaryHTML(list){
+  if(!list.length)return '';
+  const T=aggregate(list);
+  const tbl=(kind,col)=>{
+    const rows=reportRows(kind,list).filter(x=>kind!=='truck'||x.key!=='(no truck)');
+    if(!rows.length)return emptyChart(kind==='truck'?'No truck-wise entries in this period':'');
+    if(kind==='truck')rows.sort((x,y)=>y._p-x._p);
+    const tot=aggregate(kind==='truck'?list.filter(r=>r.truck):list);
+    return `<div class="tbl-wrap" style="max-height:340px"><table><thead><tr><th class="plain">${col}</th><th class="plain num">Qty (Qtl)</th><th class="plain num">Profit</th></tr></thead><tbody>${rows.map(a=>`<tr><td>${esc(a.label)}</td><td class="num">${fmtIN(r2(a.qty))}</td><td class="num ${sgnCls(a._p)}"><b>${inr(r2(a._p))}</b></td></tr>`).join('')}</tbody><tfoot><tr><td>Total</td><td class="num">${fmtIN(r2(tot.qty))}</td><td class="num ${sgnCls(tot._p)}">${inr(r2(tot._p))}</td></tr></tfoot></table></div>`;
+  };
+  return `<section class="kpis" aria-label="Profit summary">${kpi('Total profit (whole period)',`<span class="${sgnCls(T._p)}">${inr(r2(T._p))}</span>`,inWords(T._p)||fmtIN(T.n)+' transactions','accent')}${kpi('Profit per quintal',T.wMargin==null?'—':`<span class="${sgnCls(T.wMargin)}">${inr(r2(T.wMargin))}</span>`,'quantity-weighted')}</section>
+  <section class="grid g2"><div class="card"><h3>Profit per month</h3><p class="sub">Total profit for each month in the selected period</p>${tbl('monthly','Month')}</div><div class="card"><h3>Profit per truck</h3><p class="sub">Total profit for each truck, highest first</p>${tbl('truck','Truck')}</div></section>`;
+}
+
+const REPORTS=[['daily','Daily'],['weekly','Weekly'],['monthly','Monthly'],['commodity','Commodity-wise'],['truck','Truck-wise'],['customer','Customer-wise']];
+function reportRows(kind,list){
+  const kf={daily:r=>r.date,weekly:r=>weekStart(r.date),monthly:r=>r.date.slice(0,7),commodity:r=>r.commodity||'Unspecified',truck:r=>truckKey(r.truck)||'(no truck)',customer:r=>r.customer||'Unspecified'}[kind];
+  const lf=(k,arr)=>kind==='daily'?fmtDate(k):kind==='weekly'?'Week of '+fmtDate(k):kind==='monthly'?fmtMonthLong(k):kind==='truck'?(arr[0].truck||'(no truck)'):k;
+  const rows=groupStats(list,kf,lf);
+  if(['daily','weekly','monthly'].includes(kind))rows.sort((a,b)=>a.key<b.key?1:-1);else rows.sort((a,b)=>b.qty-a.qty);
+  return rows;
+}
+const REPORT_COL={daily:'Date',weekly:'Week',monthly:'Month',commodity:'Commodity',truck:'Truck',customer:'Customer'};
+function reportTableHTML(kind,list){
+  if(!list.length)return emptyChart();
+  const rows=reportRows(kind,list),T=aggregate(list);
+  const tr=(lab,a,tag)=>`<tr><${tag==='f'?'td':'td'}>${tag==='f'?'<b>'+esc(lab)+'</b>':esc(lab)}</td><td class="num">${fmtIN(a.n)}</td><td class="num">${fmtIN(r2(a.qty))}</td><td class="num">${inr(r2(a.sales))}</td><td class="num">${inr(a.wPrice==null?null:r2(a.wPrice))}</td><td class="num ${sgnCls(a.wMargin)}">${inr(a.wMargin==null?null:r2(a.wMargin))}</td><td class="num ${sgnCls(a._p)}"><b>${inr(r2(a._p))}</b></td></tr>`;
+  return `<div class="tbl-wrap"><table><thead><tr><th class="plain">${REPORT_COL[kind]}</th><th class="plain num">Txns</th><th class="plain num">Qty (Qtl)</th><th class="plain num">Sales turnover</th><th class="plain num">Wtd avg price</th><th class="plain num">Wtd avg margin /Qtl</th><th class="plain num">Total profit</th></tr></thead><tbody>${rows.map(a=>tr(a.label,a)).join('')}</tbody><tfoot>${tr('Total',T,'f')}</tfoot></table></div>`;
+}
+
+/* =====================================================================
+   PDF (hand-built, standard Courier fonts, no libraries)
+   ===================================================================== */
+function pdfSafe(s){return String(s==null?'':s).replace(/₹/g,'Rs ').replace(/[\u00a0\u202f]/g,' ').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[–—]/g,'-').replace(/[^\x20-\x7e]/g,'?').replace(/\\/g,'\\\\').replace(/\(/g,'\\(').replace(/\)/g,'\\)');}
+function makePDF(items){
+  const PW=595,PH=842,M=36;let pages=[[]],y=PH-M-6;
+  for(const it of items){
+    const s=it.s||8.5,lh=s*1.42+(it.gap||0);
+    if(y-lh<M+10){pages.push([]);y=PH-M-6;}
+    y-=lh;pages[pages.length-1].push({x:M,y,s,b:!!it.b,t:it.t});
+  }
+  let out='%PDF-1.4\n';const offs=[];
+  const add=(n,body)=>{offs[n]=out.length;out+=`${n} 0 obj\n${body}\nendobj\n`;};
+  const np=pages.length;
+  add(1,'<< /Type /Catalog /Pages 2 0 R >>');
+  add(2,`<< /Type /Pages /Kids [${pages.map((_,i)=>`${5+2*i} 0 R`).join(' ')}] /Count ${np} >>`);
+  add(3,'<< /Type /Font /Subtype /Type1 /BaseFont /Courier >>');
+  add(4,'<< /Type /Font /Subtype /Type1 /BaseFont /Courier-Bold >>');
+  pages.forEach((p,i)=>{
+    let c=p.map(l=>`BT /${l.b?'F2':'F1'} ${l.s} Tf ${l.x} ${l.y.toFixed(2)} Td (${pdfSafe(l.t)}) Tj ET`).join('\n');
+    c+=`\nBT /F1 7 Tf ${M} 20 Td (AgriMargin report - page ${i+1} of ${np}) Tj ET`;
+    add(5+2*i,`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${PW} ${PH}] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ${6+2*i} 0 R >>`);
+    add(6+2*i,`<< /Length ${c.length} >>\nstream\n${c}\nendstream`);
+  });
+  const total=5+2*np,xref=out.length;
+  out+=`xref\n0 ${total}\n0000000000 65535 f \n`;
+  for(let n=1;n<total;n++)out+=String(offs[n]).padStart(10,'0')+' 00000 n \n';
+  out+=`trailer\n<< /Size ${total} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
+  return new Blob([out],{type:'application/pdf'});
+}
+function pdfReport(list,label){
+  const A=aggregate(list),L=[];
+  const pr=(s,n)=>{s=pdfSafe(s).replace(/\\([\\()])/g,'$1');return s.length>n?s.slice(0,n-1)+'.':s.padEnd(n);};
+  const pl=(s,n)=>{s=String(s);return s.length>n?s.slice(0,n):s.padStart(n);};
+  const money=n=>n==null?'-':(n<0?'-':'')+'Rs '+fmtIN(Math.abs(n));
+  L.push({t:'AgriMargin - Trading Report',s:16,b:true,gap:4});
+  L.push({t:'Period: '+label});L.push({t:'Generated: '+new Date().toLocaleString('en-IN'),gap:6});
+  L.push({t:'SUMMARY',b:true});
+  [['Transactions',fmtIN(A.n)],['Truck entries',fmtIN(A.truckEntries)],['Total quantity (Qtl)',fmtIN(r2(A.qty))],['Sales turnover',money(r2(A.sales))],['Weighted avg selling price /Qtl',money(A.wPrice==null?null:r2(A.wPrice))],['Weighted avg margin /Qtl',money(A.wMargin==null?null:r2(A.wMargin))],['Total profit',money(r2(A._p))],['Trading days',fmtIN(A.days)]].forEach(([k,v])=>L.push({t:pr(k,34)+v}));
+  const table=(title,kind)=>{
+    const rows=reportRows(kind,list);if(!rows.length)return;
+    L.push({t:'',gap:4});L.push({t:title.toUpperCase(),b:true});
+    L.push({t:pr('Name',22)+pl('Txns',5)+pl('Qty(Qtl)',11)+pl('Turnover',16)+pl('Avg price',12)+pl('Avg margin',12)+pl('Profit',14),b:true});
+    rows.forEach(a=>L.push({t:pr(a.label,22)+pl(a.n,5)+pl(fmtIN(r2(a.qty)),11)+pl(fmtIN(r2(a.sales)),16)+pl(a.wPrice==null?'-':fmtIN(r2(a.wPrice)),12)+pl(a.wMargin==null?'-':fmtIN(r2(a.wMargin)),12)+pl(fmtIN(r2(a._p)),14)}));
+  };
+  table('Commodity-wise performance','commodity');table('Truck-wise performance','truck');table('Customer-wise performance','customer');table('Monthly performance','monthly');
+  L.push({t:'',gap:4});L.push({t:'TRANSACTIONS',b:true});
+  L.push({t:pr('Date',11)+pr('ID',9)+pr('Commodity',13)+pr('Truck',14)+pl('Qty',9)+pl('Price',9)+pl('Margin',8)+' '+pr('Customer',20),b:true});
+  list.slice().sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:a.id<b.id?1:-1).forEach(r=>L.push({t:pr(r.date,11)+pr(r.id,9)+pr(r.commodity||'-',13)+pr(r.truck||'-',14)+pl(fmtIN(r.qty),9)+pl(r.sellPrice==null?'-':fmtIN(r.sellPrice),9)+pl(fmtIN(r2(effMargin(r))),8)+' '+pr(r.customer||'-',20)}));
+  L.push({t:'',gap:4});L.push({t:'Figures in Indian Rupees. Margin is per quintal. '});
+  return makePDF(L);
+}
+
+/* =====================================================================
+   CSV EXPORTS
+   ===================================================================== */
+function exportTxCSV(list,name){
+  const rows=[['Transaction ID','Date','Type','Commodity','Truck','Quantity (Qtl)','Selling Price (Rs/Qtl)','Procurement Price (Rs/Qtl)','Margin (Rs/Qtl)','Sales Turnover (Rs)','Customer','Destination','Status','Remarks']];
+  list.forEach(r=>rows.push([r.id,r.date,TYPES[r.type],r.commodity,r.truck,r.qty,r.sellPrice,r.procPrice,r2(effMargin(r)),r.sellPrice==null?null:r2(salesOf(r)),r.customer,r.destination,statusOf(r),r.remarks]));
+  download(name||`agrimargin-transactions-${stamp()}.csv`,toCSV(rows),'text/csv;charset=utf-8');
+  toast(`Exported ${list.length} record${list.length===1?'':'s'} to CSV`);
+}
+function exportJSON(){
+  const data={app:'AgriMargin',version:1,exportedAt:nowIso(),records:DB.records};
+  download(`agrimargin-backup-${stamp()}.json`,JSON.stringify(data,null,2),'application/json');
+  toast(`Backup exported (${DB.records.length} records)`);
+}
+
+/* =====================================================================
+   SHELL: nav, theme, banner
+   ===================================================================== */
+const NAV=[
+ {id:'overview',label:'Overview',icon:'grid',title:'Overview Dashboard'},
+ {id:'calculator',label:'Margin Calculator',icon:'calc',title:'Margin Calculator'},
+ {id:'trucks',label:'Truck Trading',icon:'truck',title:'Truck Trading'},
+ {id:'transactions',label:'Transactions',icon:'list',title:'Transaction History'},
+ {id:'analytics',label:'Analytics',icon:'chart',title:'Analytics & Reports'},
+ {id:'settings',label:'Settings',icon:'settings',title:'Settings & Data Management'}];
+function buildShell(){
+  $('#logo').innerHTML=ICON('leaf',22);
+  $('#nav').innerHTML=NAV.map(n=>`<a href="#${n.id}" data-nav="${n.id}">${ICON(n.icon)}<span>${n.label}</span></a>`).join('');
+  $('#menuBtn').innerHTML=ICON('menu',20);
+  $('#quickAdd').innerHTML=ICON('plus',16)+' <span>Truck Entry</span>';
+  updateThemeIcon();
+}
+function updateChrome(){
+  $$('#nav a').forEach(a=>{const on=a.dataset.nav===S.view;a.classList.toggle('active',on);if(on)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current');});
+  const n=NAV.find(x=>x.id===S.view);$('#pageTitle').textContent=n?n.title:'';
+  const sl=syncLabel();
+  $('#storageState').innerHTML=((DB.storageOk&&!DB.writeFailed)?'<span class="dot"></span>Saved to this browser':'<span class="dot bad"></span>Not saved permanently')+(sl?`<div>${Sync.mode==='on'&&!Sync.err?'<span class="dot"></span>':'<span class="dot bad"></span>'}${esc(sl)}</div>`:'');
+  let b='';
+  if(!DB.storageOk)b+=`<div class="notice bad">Browser storage is unavailable (private mode or blocked). AgriMargin is running in <b>memory only</b> – everything is lost when you close this tab. Use <b>Settings → Export JSON backup</b> regularly.</div>`;
+  else if(DB.writeFailed)b+=`<div class="notice bad">The last save to browser storage failed (storage may be full). Recent changes exist only in this session – export a JSON backup now.</div>`;
+  if(DB.corrupt)b+=`<div class="notice warn">Stored data could not be read and was set aside (a raw copy is kept under <span class="mono">${esc(KEY)}.corrupt-backup</span>). You can restore from a JSON backup in Settings.</div>`;
+  else if(DB.dropped)b+=`<div class="notice warn">${DB.dropped} stored record(s) were invalid and skipped on load.</div>`;
+  if(Sync.mode==='on'&&Sync.hasRecovery===false)b+=`<div class="notice warn">No recovery key yet – without one you cannot reset a forgotten password. <button type="button" class="link" data-action="rec-open">Create recovery key</button></div>`;
+  $('#banner').innerHTML=b;
+}
+function updateThemeIcon(){const t=document.documentElement.getAttribute('data-theme');$('#themeBtn').innerHTML=ICON(t==='dark'?'sun':'moon',18);}
+function toggleTheme(){
+  const next=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',next);
+  try{localStorage.setItem(THEME_KEY,next);}catch(e){}
+  updateThemeIcon();if($('#themeSel'))$('#themeSel').value=next;
+}
+function refreshLists(){
+  const com=new Set(['Chana','Wheat','Maize','Paddy','Soybean','Tur Dal','Moong','Urad','Groundnut','Turmeric','Jowar','Bajra','Cotton','Sunflower','Red Chilli']);
+  const cus=new Set(),trk=new Set(),dst=new Set();
+  DB.records.forEach(r=>{if(r.commodity)com.add(r.commodity);if(r.customer)cus.add(r.customer);if(r.truck)trk.add(r.truck);if(r.destination)dst.add(r.destination);});
+  const dl=(id,s)=>`<datalist id="${id}">${[...s].sort().map(v=>`<option value="${esc(v)}"></option>`).join('')}</datalist>`;
+  $('#lists').innerHTML=dl('dl-commodity',com)+dl('dl-customer',cus)+dl('dl-truck',trk)+dl('dl-dest',dst);
+}
+
+/* =====================================================================
+   ROUTER
+   ===================================================================== */
+const VIEWS={};
+function route(){
+  const h=(location.hash||'').replace('#','');
+  const nv=NAV.some(n=>n.id===h)?h:'overview';
+  const changed=nv!==S.view;S.view=nv;
+  document.body.classList.remove('nav-open');
+  render();if(changed)window.scrollTo(0,0);
+}
+function render(){refreshLists();updateChrome();VIEWS[S.view]();}
+function navigate(id){if(location.hash==='#'+id)route();else location.hash='#'+id;}
+
+/* =====================================================================
+   VIEW HELPERS
+   ===================================================================== */
+const pageHead=(t,sub,actions='')=>`<div class="page-head"><div><h2>${t}</h2><p class="muted">${sub}</p></div><div class="head-actions">${actions}</div></div>`;
+function periodBar(){
+  return `<div class="periodbar" role="group" aria-label="Date range">${PERIODS.map(([k,l])=>`<button type="button" class="chip${S.period.key===k?' on':''}" data-action="period" data-key="${k}" aria-pressed="${S.period.key===k}">${l}</button>`).join('')}${S.period.key==='custom'?`<span class="custom"><input type="date" data-period="from" value="${esc(S.period.from)}" aria-label="From date"><span>to</span><input type="date" data-period="to" value="${esc(S.period.to)}" aria-label="To date"></span>`:''}</div>`;
+}
+const kpi=(l,v,s='',cls='')=>`<div class="kpi ${cls}"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s||'&nbsp;'}</div></div>`;
+function onboarding(){
+  return `<div class="card empty" style="margin-bottom:14px">${ICON('leaf',34)}<b>Welcome to AgriMargin</b><p>No transactions yet. Add your first truck entry or run a margin calculation – or load sample data to explore the dashboard.</p><div class="btnrow" style="justify-content:center"><button class="btn primary" data-action="truck-add">${ICON('plus',16)} Add Truck Entry</button><button class="btn" data-action="nav" data-id="calculator">Open Calculator</button><button class="btn ghost" data-action="sample-load">Load sample data</button></div></div>`;
+}
+const selOpts=(vals,cur,all)=>`<option value="">${all}</option>`+vals.map(v=>`<option value="${esc(v)}"${v===cur?' selected':''}>${esc(v)}</option>`).join('');
+const uniq=(list,k)=>[...new Set(list.map(r=>r[k]).filter(Boolean))].sort((a,b)=>a.localeCompare(b));
+function sortList(list,sort){
+  const m=sort.dir==='asc'?1:-1;
+  const val={date:r=>r.date,qty:r=>r.qty,sellPrice:r=>r.sellPrice==null?-Infinity:r.sellPrice,margin:effMargin,truck:r=>truckKey(r.truck),commodity:r=>(r.commodity||'').toLowerCase(),customer:r=>(r.customer||'').toLowerCase(),id:r=>r.id,type:r=>r.type,status:statusOf,turnover:salesOf,destination:r=>(r.destination||'').toLowerCase()}[sort.key]||(r=>r.date);
+  return list.slice().sort((a,b)=>{const x=val(a),y=val(b);if(x<y)return -m;if(x>y)return m;return a.id<b.id?-m:a.id>b.id?m:0;});
+}
+function filterRecords(list,f,scope){
+  const q=(f.q||'').trim().toLowerCase(),qk=q.replace(/[\s\-]/g,'');
+  return list.filter(r=>{
+    if(f.type&&r.type!==f.type)return false;
+    if(f.commodity&&r.commodity!==f.commodity)return false;
+    if(f.customer&&r.customer!==f.customer)return false;
+    if(f.status&&statusOf(r)!==f.status)return false;
+    if(f.from&&r.date<f.from)return false;
+    if(f.to&&r.date>f.to)return false;
+    if(q){
+      const tk=truckKey(r.truck).toLowerCase();
+      if(scope==='truck'){if(!(tk.includes(qk)||r.truck.toLowerCase().includes(q)))return false;}
+      else{const hay=[r.id,r.commodity,r.customer,r.destination,r.remarks,r.truck].join(' ').toLowerCase();if(!(hay.includes(q)||(qk&&tk.includes(qk))))return false;}
+    }
+    return true;
+  });
+}
+function thBtn(scope,key,label,cls=''){
+  const s=S[scope].sort,on=s.key===key;
+  return `<th class="${cls}" aria-sort="${on?(s.dir==='asc'?'ascending':'descending'):'none'}"><button class="th-btn" data-action="sort" data-scope="${scope}" data-key="${key}">${label}<span aria-hidden="true">${on?(s.dir==='asc'?'▲':'▼'):''}</span></button></th>`;
+}
+function pagerHTML(scope,total,page){
+  const pages=Math.max(1,Math.ceil(total/PAGE));
+  if(total<=PAGE)return `<div class="pager"><span>${total} record${total===1?'':'s'}</span></div>`;
+  const a=(page-1)*PAGE+1,b=Math.min(total,page*PAGE);
+  return `<div class="pager"><span>Showing ${a}–${b} of ${total}</span><span class="btnrow"><button class="btn sm" data-action="page" data-scope="${scope}" data-dir="-1" ${page<=1?'disabled':''}>Previous</button><span style="align-self:center">Page ${page} / ${pages}</span><button class="btn sm" data-action="page" data-scope="${scope}" data-dir="1" ${page>=pages?'disabled':''}>Next</button></span></div>`;
+}
+const rowActions=r=>`<div class="actions"><button class="icon-btn sm" data-action="tx-view" data-id="${esc(r.id)}" title="View details" aria-label="View ${esc(r.id)}">${ICON('eye',15)}</button><button class="icon-btn sm" data-action="tx-edit" data-id="${esc(r.id)}" title="Edit" aria-label="Edit ${esc(r.id)}">${ICON('edit',15)}</button><button class="icon-btn sm danger" data-action="tx-delete" data-id="${esc(r.id)}" title="Delete" aria-label="Delete ${esc(r.id)}">${ICON('trash',15)}</button></div>`;
+const dash=v=>v?esc(v):'<span class="muted">—</span>';
+
+/* =====================================================================
+   VIEW: OVERVIEW
+   ===================================================================== */
+VIEWS.overview=function(){
+  const list=periodRecords(),A=aggregate(list),alerts=alertsInPeriod(),b=bucketize(list);
+  const mk=r=>r?`${esc(r.id)}${r.truck?' · '+esc(r.truck):''}${r.commodity?' · '+esc(r.commodity):''}`:'';
+  const recent=sortList(list,{key:'date',dir:'desc'}).slice(0,6);
+  view().innerHTML=`${pageHead('Overview','Executive summary — '+esc(rangeLabel()))}
+  ${periodBar()}
+  ${DB.records.length?'':onboarding()}
+  <section class="kpis" aria-label="Key metrics">
+   ${kpi('Total Transactions',fmtIN(A.n),`${fmtIN(A.procN)} standard calculation${A.procN===1?'':'s'}`)}
+   ${kpi('Total Truck Entries',fmtIN(A.truckEntries))}
+   ${kpi('Total Quantity Traded',fmtIN(r2(A.qty))+' <small class="muted">Qtl</small>')}
+   ${kpi('Total Sales Turnover',inr(r2(A.sales)),inWords(A.sales),'accent')}
+   ${kpi('Total Procurement Value',A.procN?inr(r2(A.proc)):'—',A.procN?inWords(A.proc)||'from standard calculations':'where available (standard mode)')}
+   ${kpi('Wtd Avg Selling Price',A.wPrice==null?'—':inr(r2(A.wPrice))+' <small class="muted">/Qtl</small>','quantity-weighted')}
+   ${kpi('Wtd Avg Margin',A.wMargin==null?'—':`<span class="${sgnCls(A.wMargin)}">${inr(r2(A.wMargin))}</span> <small class="muted">/Qtl</small>`,'quantity-weighted','accent')}
+   ${kpi('Avg Quantity per Truck',A.avgTruckQty==null?'—':fmtIN(r2(A.avgTruckQty))+' <small class="muted">Qtl</small>')}
+   ${kpi('Highest Margin',A.maxM==null?'—':`<span class="${sgnCls(A.maxM)}">${inr(r2(A.maxM))}</span> <small class="muted">/Qtl</small>`,mk(A.maxRec))}
+   ${kpi('Lowest Margin',A.minM==null?'—':`<span class="${sgnCls(A.minM)}">${inr(r2(A.minM))}</span> <small class="muted">/Qtl</small>`,mk(A.minRec))}
+   ${kpi('Total Trading Days',fmtIN(A.days))}
+  </section>
+  <section class="grid g3">
+   ${chartCard('Trading volume',`Quintals per ${b.mode==='day'?'day':'month'}`,barChart(b.items.map(i=>({label:i.label,value:r2(i.qty)})),{unit:' Qtl'}))}
+   ${chartCard('Commodity mix','Quantity share',doughnut(sumBy(list,r=>r.commodity||'Unspecified',r=>r.qty),{unit:' Qtl'}))}
+  </section>
+  <section class="grid g2">
+   ${chartCard('Weighted margin trend','₹ per quintal',lineChart(b.items.filter(i=>i.wMargin!=null).map(i=>({label:i.label,value:r2(i.wMargin)})),{color:'var(--c2)',fmt:v=>inr(v)}))}
+   <div class="card"><h3>Business alerts</h3><p class="sub">${alerts.length} in this period · informational only, no data is changed</p>${alertListHTML(alerts,5)}</div>
+  </section>
+  <div class="card"><h3>Recent transactions</h3><p class="sub">Latest entries in this period</p>
+   ${recent.length?`<div class="tbl-wrap"><table><thead><tr><th class="plain">Date</th><th class="plain">ID</th><th class="plain">Commodity</th><th class="plain">Truck</th><th class="plain num">Qty</th><th class="plain num">Selling price</th><th class="plain num">Margin /Qtl</th><th></th></tr></thead><tbody>${recent.map(r=>`<tr><td>${fmtDate(r.date)}</td><td class="mono">${esc(r.id)}</td><td>${dash(r.commodity)}</td><td>${dash(r.truck)}</td><td class="num">${fmtIN(r.qty)}</td><td class="num">${r.sellPrice==null?'—':inr(r.sellPrice)}</td><td class="num ${sgnCls(effMargin(r))}">${inr(r2(effMargin(r)))}</td><td class="num"><button class="btn sm ghost" data-action="tx-view" data-id="${esc(r.id)}">Details</button></td></tr>`).join('')}</tbody></table></div>`:emptyChart('No transactions in this period')}
+  </div>`;
+};
+
+/* =====================================================================
+   VIEW: CALCULATOR
+   ===================================================================== */
+const blankDraft=()=>({mode:'standard',commodity:'',date:todayStr(),qty:'',proc:'',sell:'',transport:'',loading:'',other:'',extras:[],customer:'',margin:'',truck:''});
+function extraRowHTML(x,i){
+  return `<div class="extra-row" data-i="${i}"><div class="field" style="margin:0"><input data-x="name" aria-label="Expense name" placeholder="Expense name (e.g. Unloading)" value="${esc(x.name)}" maxlength="40"></div><div class="field" style="margin:0"><div class="inp hasPre"><span class="pre">₹</span><input data-x="amount" data-fk="x${i}" inputmode="decimal" aria-label="Expense amount" placeholder="0" value="${esc(x.amount)}"></div><small class="err" data-err="x${i}"></small></div><button type="button" class="icon-btn danger" data-action="calc-del-extra" data-i="${i}" aria-label="Remove expense">${ICON('trash',15)}</button></div>`;
+}
+VIEWS.calculator=function(){
+  const d=S.calc.draft||(S.calc.draft=blankDraft()),ed=S.calc.editingId;
+  view().innerHTML=`${pageHead('Margin Calculator','Full cost-and-profit analysis, or a quick margin-only entry')}
+  <div class="grid calc">
+   <section class="card" aria-label="Calculator inputs">
+    <div class="seg" role="tablist" aria-label="Calculation mode"><button type="button" role="tab" data-action="calc-mode" data-mode="standard" id="modeStd">Standard</button><button type="button" role="tab" data-action="calc-mode" data-mode="margin" id="modeMargin">Margin-Only</button></div>
+    ${ed?`<div class="notice info">Editing <b>${esc(ed)}</b> — saving updates this record (no duplicate is created). <button type="button" class="link" data-action="calc-cancel-edit">Cancel edit</button></div>`:''}
+    <form id="calcForm" novalidate autocomplete="off">
+     <div class="row2">
+      ${field('c-commodity','<span id="lblCommodity">Commodity Name</span>',{name:'commodity',value:d.commodity,list:'dl-commodity',ph:'e.g. Chana',max:80})}
+      ${field('c-date','Date',{name:'date',type:'date',value:d.date})}
+     </div>
+     ${field('c-qty','Quantity',{name:'qty',value:d.qty,num:1,suf:'Qtl',req:1,ph:'0'})}
+     <div data-mode-only="standard">
+      <div class="row2">
+       ${field('c-proc','Procurement Price per Quintal',{name:'proc',value:d.proc,num:1,pre:'₹',req:1,ph:'0'})}
+       ${field('c-sell','Selling Price per Quintal',{name:'sell',value:d.sell,num:1,pre:'₹',req:1,ph:'0'})}
+      </div>
+      <div class="row3">
+       ${field('c-transport','Transportation',{name:'transport',value:d.transport,num:1,pre:'₹',ph:'0'})}
+       ${field('c-loading','Loading Charges',{name:'loading',value:d.loading,num:1,pre:'₹',ph:'0'})}
+       ${field('c-other','Other Expenses',{name:'other',value:d.other,num:1,pre:'₹',ph:'0'})}
+      </div>
+      <div class="field"><label>Additional expense components</label><div id="extras">${d.extras.map(extraRowHTML).join('')}</div><button type="button" class="btn sm" data-action="calc-add-extra">${ICON('plus',14)} Add expense</button></div>
+     </div>
+     <div data-mode-only="margin">
+      ${field('c-margin','Margin per Quintal',{name:'margin',value:d.margin,num:1,pre:'₹',req:1,ph:'e.g. 150',hint:'Can be negative for a loss. No procurement or selling price needed.'})}
+      ${field('c-truck','Truck Number (optional)',{name:'truck',value:d.truck,list:'dl-truck',max:30})}
+     </div>
+     ${field('c-customer','Customer / Buyer (optional)',{name:'customer',value:d.customer,list:'dl-customer',max:80})}
+     <div class="form-actions">
+      <button type="submit" class="btn primary" id="calcSave">${ICON('check',16)} <span id="calcSaveLbl">Save as Transaction</span></button>
+      <button type="button" class="btn" data-action="calc-export">${ICON('download',16)} Export CSV</button>
+      <button type="button" class="btn ghost" data-action="calc-reset">${ICON('reset',16)} Reset</button>
+     </div>
+    </form>
+   </section>
+   <section class="card" id="calcResults" aria-live="polite" aria-label="Results"></section>
+  </div>`;
+  applyCalcMode();renderCalcResults();
+};
+function readCalcDOM(){
+  const f=$('#calcForm');if(!f)return S.calc.draft;
+  const g=n=>f.elements[n]?f.elements[n].value:'',d=S.calc.draft;
+  Object.assign(d,{commodity:g('commodity'),date:g('date'),qty:g('qty'),proc:g('proc'),sell:g('sell'),transport:g('transport'),loading:g('loading'),other:g('other'),customer:g('customer'),margin:g('margin'),truck:g('truck')});
+  d.extras=$$('.extra-row',f).map(r=>({name:$('[data-x=name]',r).value,amount:$('[data-x=amount]',r).value}));
+  return d;
+}
+function applyCalcMode(){
+  const d=S.calc.draft;
+  $$('[data-mode-only]').forEach(e=>{e.hidden=e.dataset.modeOnly!==d.mode;});
+  $('#modeStd').classList.toggle('on',d.mode==='standard');$('#modeMargin').classList.toggle('on',d.mode==='margin');
+  $('#modeStd').setAttribute('aria-selected',d.mode==='standard');$('#modeMargin').setAttribute('aria-selected',d.mode==='margin');
+  $('#lblCommodity').textContent=d.mode==='margin'?'Transaction Name / Commodity':'Commodity Name';
+  $('#calcSaveLbl').textContent=S.calc.editingId?'Update Transaction':'Save as Transaction';
+}
+function calcCompute(d){
+  const errors={},v={};
+  const take=(k,raw,o)=>{const r=checkNum(raw,o);if(r.err)errors[k]={msg:r.err,blank:!!r.blank};else v[k]=r.v;};
+  take('qty',d.qty,{label:'Quantity',required:true,gt:0});
+  if(d.mode==='standard'){
+    take('proc',d.proc,{label:'Procurement price',required:true,gte:0});
+    take('sell',d.sell,{label:'Selling price',required:true,gte:0});
+    take('transport',d.transport,{label:'Transportation',gte:0});take('loading',d.loading,{label:'Loading charges',gte:0});take('other',d.other,{label:'Other expenses',gte:0});
+    d.extras.forEach((x,i)=>take('x'+i,x.amount,{label:'Expense amount',gte:0}));
+  }else take('margin',d.margin,{label:'Margin per quintal',required:true});
+  if(!validDate(d.date))errors.date={msg:'Select a valid date',blank:!d.date};
+  return {errors,v};
+}
+function calcRecordLike(d,v){
+  if(d.mode==='standard')return {type:'standard',qty:v.qty,procPrice:v.proc,sellPrice:v.sell,expenses:{transport:v.transport||0,loading:v.loading||0,other:v.other||0,extras:d.extras.map((x,i)=>({name:cleanStr(x.name,40)||`Expense ${i+1}`,amount:v['x'+i]||0}))}};
+  return {type:'margin',qty:v.qty,margin:v.margin};
+}
+function renderCalcResults(){
+  const el=$('#calcResults');if(!el)return;
+  const d=readCalcDOM(),{errors,v}=calcCompute(d);
+  const f=$('#calcForm');
+  if(f){showErrors(f,Object.fromEntries(Object.entries(errors).filter(([k,e])=>!e.blank)));}
+  const need=d.mode==='standard'?['qty','proc','sell']:['qty','margin'];
+  const incomplete=need.some(k=>errors[k]);
+  if(incomplete){
+    el.innerHTML=`<h3>Results</h3><p class="sub">${d.mode==='standard'?'Standard calculation':'Margin-only calculation'}</p><div class="empty">${ICON('calc',32)}<p>${d.mode==='standard'?'Enter quantity, procurement price and selling price':'Enter quantity and margin per quintal'} to see results.</p></div>`;
+    return;
+  }
+  const anyExpErr=Object.keys(errors).some(k=>!need.includes(k)&&k!=='date');
+  if(d.mode==='margin'){
+    const total=r2(v.qty*v.margin);
+    el.innerHTML=`<h3>Results</h3><p class="sub">Margin-only calculation</p>
+     <div class="res-hero"><div class="l">Total Margin</div><div class="v ${sgnCls(total)}">${inr(total)}</div><span class="badge ${total>0?'pos':total<0?'neg':'mute'}">${total>0?'Profit':total<0?'Loss':'Break-even'}</span> <span class="muted">${esc(inWords(total))}</span></div>
+     <div class="rows"><div class="r"><span>Quantity</span><b>${fmtIN(v.qty)} Qtl</b></div><div class="r"><span>Margin per quintal</span><b class="${sgnCls(v.margin)}">${inr(v.margin)}</b></div><div class="r"><span>Formula</span><b>${fmtIN(v.qty)} × ${inr(v.margin)}</b></div></div>`;
+    return;
+  }
+  if(anyExpErr){el.innerHTML=`<h3>Results</h3><p class="sub">Standard calculation</p><div class="notice warn">Fix the highlighted expense amounts to continue.</div>`;return;}
+  const rec=calcRecordLike(d,v),m=standardMetrics(rec),q=v.qty,e=rec.expenses;
+  const parts=[['Procurement',v.proc],['Transportation',(e.transport||0)/q],['Loading',(e.loading||0)/q],['Other expenses',(e.other||0)/q]].concat(e.extras.filter(x=>x.amount>0).map(x=>[x.name,x.amount/q]));
+  const tcq=m.totalCost/q,status=m.net>0?['pos','Profit']:m.net<0?['neg','Loss']:['mute','Break-even'];
+  el.innerHTML=`<h3>Results</h3><p class="sub">Standard calculation</p>
+   <div class="res-hero"><div class="l">Net Profit</div><div class="v ${sgnCls(m.net)}">${inr(m.net)}</div><span class="badge ${status[0]}">${status[1]}</span> <span class="muted">${esc(inWords(m.net))}</span></div>
+   <div class="rows">
+    <div class="r"><span>Procurement Value</span><b>${inr(m.proc)}</b></div>
+    <div class="r"><span>Selling Value</span><b>${inr(m.sales)}</b></div>
+    <div class="r"><span>Total Expenses</span><b>${inr(m.exp)}</b></div>
+    <div class="r"><span>Gross Trading Margin</span><b class="${sgnCls(m.gross)}">${inr(m.gross)}</b></div>
+    <div class="r"><span>Net Profit per Quintal</span><b class="${sgnCls(m.netPerQ)}">${inr(m.netPerQ)}</b></div>
+    <div class="r"><span>Profit Margin</span><b class="${sgnCls(m.pct)}">${m.pct==null?'—':m.pct+'%'}</b></div>
+    <div class="r"><span>Break-even Selling Price</span><b>${inr(m.breakEven)} /Qtl</b></div>
+   </div>
+   <h4 style="margin:16px 0 6px">Per-quintal cost breakdown</h4>
+   <div class="rows">${parts.map(([n,val])=>`<div class="r" style="flex-direction:column;gap:0"><div style="display:flex;justify-content:space-between"><span>${esc(n)}</span><b>${inr(r2(val))}</b></div><div class="bartrack"><i style="width:${tcq>0?Math.min(100,val/tcq*100).toFixed(1):0}%"></i></div></div>`).join('')}
+    <div class="r"><span><b>Total cost per quintal</b></span><b>${inr(r2(tcq))}</b></div><div class="r"><span>Selling price per quintal</span><b>${inr(v.sell)}</b></div><div class="r"><span>Net per quintal</span><b class="${sgnCls(m.netPerQ)}">${inr(m.netPerQ)}</b></div></div>`;
+}
+function saveCalc(){
+  if(Date.now()<S.lock)return;
+  const d=readCalcDOM(),{errors,v}=calcCompute(d),f=$('#calcForm');
+  if(Object.keys(errors).length){const first=showErrors(f,errors);toast('Please fix the highlighted fields','error');if(first)first.focus();return;}
+  const base={commodity:cleanStr(d.commodity,80),date:d.date,customer:cleanStr(d.customer,80)};
+  const rl=calcRecordLike(d,v);
+  const fields=Object.assign(base,rl.type==='standard'?{type:'standard',qty:rl.qty,procPrice:rl.procPrice,sellPrice:rl.sellPrice,margin:null,expenses:rl.expenses,truck:''}:{type:'margin',qty:rl.qty,margin:rl.margin,sellPrice:null,procPrice:null,expenses:null,truck:normTruck(d.truck)});
+  let id;
+  if(S.calc.editingId){const u=dbUpdate(S.calc.editingId,fields);if(!u){toast('That record no longer exists','error');S.calc.editingId=null;return;}id=u.id;toast(`${id} updated`);}
+  else{id=dbAdd(fields).id;toast(`Saved as ${id}`);}
+  S.lock=Date.now()+500;
+  S.calc.editingId=null;S.calc.draft=Object.assign(blankDraft(),{mode:d.mode,date:d.date});
+  refreshLists();updateChrome();VIEWS.calculator();
+}
+function exportCalc(){
+  const d=readCalcDOM(),{errors,v}=calcCompute(d);
+  const need=d.mode==='standard'?['qty','proc','sell']:['qty','margin'];
+  if(need.some(k=>errors[k])||Object.keys(errors).length){toast('Complete the calculation with valid numbers before exporting','error');return;}
+  const rows=[['Field','Value'],['Mode',d.mode==='standard'?'Standard':'Margin-only'],['Commodity',d.commodity],['Date',d.date],['Quantity (Qtl)',v.qty]];
+  if(d.mode==='margin'){rows.push(['Margin per Quintal (Rs)',v.margin],['Total Margin (Rs)',r2(v.qty*v.margin)]);}
+  else{const rec=calcRecordLike(d,v),m=standardMetrics(rec),q=v.qty;
+    rows.push(['Procurement Price (Rs/Qtl)',v.proc],['Selling Price (Rs/Qtl)',v.sell],['Transportation (Rs)',v.transport||0],['Loading (Rs)',v.loading||0],['Other Expenses (Rs)',v.other||0]);
+    rec.expenses.extras.forEach(x=>rows.push([`Expense: ${x.name} (Rs)`,x.amount]));
+    rows.push(['Procurement Value (Rs)',m.proc],['Selling Value (Rs)',m.sales],['Total Expenses (Rs)',m.exp],['Gross Trading Margin (Rs)',m.gross],['Net Profit (Rs)',m.net],['Net Profit per Quintal (Rs)',m.netPerQ],['Profit Margin (%)',m.pct],['Break-even Selling Price (Rs/Qtl)',m.breakEven],['Total Cost per Quintal (Rs)',r2(m.totalCost/q)],['Status',m.net>0?'Profit':m.net<0?'Loss':'Break-even']);}
+  download(`agrimargin-calculation-${stamp()}.csv`,toCSV(rows),'text/csv;charset=utf-8');toast('Calculation exported');
+}
+function startEditCalc(id){
+  const r=getRec(id);if(!r)return;
+  const d=blankDraft();
+  Object.assign(d,{mode:r.type==='standard'?'standard':'margin',commodity:r.commodity,date:r.date,qty:String(r.qty),customer:r.customer});
+  if(r.type==='standard'){Object.assign(d,{proc:String(r.procPrice),sell:String(r.sellPrice),transport:r.expenses.transport?String(r.expenses.transport):'',loading:r.expenses.loading?String(r.expenses.loading):'',other:r.expenses.other?String(r.expenses.other):'',extras:r.expenses.extras.map(x=>({name:x.name,amount:String(x.amount)}))});}
+  else Object.assign(d,{margin:String(r.margin),truck:r.truck});
+  S.calc.draft=d;S.calc.editingId=id;
+  if(S.view==='calculator')VIEWS.calculator();else navigate('calculator');
+}
+
+/* =====================================================================
+   TRUCK FORM (modal) + detail modal
+   ===================================================================== */
+function truckFormHTML(r){
+  r=r||{};
+  return `<form id="truckForm" novalidate autocomplete="off" data-edit="${esc(r.id||'')}">
+   <div class="row2">${field('t-truck','Truck Name / Number',{name:'truck',value:r.truck||'',req:1,list:'dl-truck',ph:'KA34 AB 1234',max:30})}${field('t-date','Transaction Date',{name:'date',type:'date',value:r.date||todayStr(),req:1})}</div>
+   <div class="row2">${field('t-qty','Quantity',{name:'qty',value:r.qty!=null?r.qty:'',num:1,suf:'Qtl',req:1,ph:'0'})}${field('t-commodity','Commodity',{name:'commodity',value:r.commodity||'',list:'dl-commodity',ph:'e.g. Chana',max:80})}</div>
+   <div class="row2">${field('t-sell','Selling Price',{name:'sellPrice',value:r.sellPrice!=null?r.sellPrice:'',num:1,pre:'₹',req:1,ph:'per quintal'})}${field('t-margin','Margin',{name:'margin',value:r.margin!=null?r.margin:'',num:1,pre:'₹',req:1,ph:'per quintal',hint:'Enter manually. May be negative.'})}</div>
+   <div class="row2">${field('t-customer','Customer / Buyer',{name:'customer',value:r.customer||'',list:'dl-customer',max:80})}${field('t-dest','Destination / Delivery Location',{name:'destination',value:r.destination||'',list:'dl-dest',max:80})}</div>
+   <div class="field"><label for="t-remarks">Remarks</label><textarea id="t-remarks" name="remarks" maxlength="500">${esc(r.remarks||'')}</textarea></div>
+   <div class="notice info" id="tPreview" style="margin:0">Sales turnover: —</div>
+  </form>`;
+}
+function openTruckForm(id){
+  const r=id?getRec(id):null;if(id&&!r){toast('Record not found','error');return;}
+  Modal.open({title:r?`Edit Truck Entry · ${r.id}`:'Add Truck Entry',body:truckFormHTML(r),wide:true,
+   footer:`<button class="btn" data-action="modal-close">Cancel</button>${r?'':`<button class="btn" type="button" data-action="truck-save-another">Save &amp; Add Another</button>`}<button class="btn primary" type="submit" form="truckForm">${r?'Update Entry':'Save Entry'}</button>`});
+  truckPreview();
+}
+function truckPreview(){
+  const f=$('#truckForm'),p=$('#tPreview');if(!f||!p)return;
+  const q=parseNum(f.elements.qty.value),s=parseNum(f.elements.sellPrice.value);
+  p.textContent='Sales turnover: '+((q.v>0&&s.v>=0)?inr(r2(q.v*s.v)):'—');
+}
+function validateTruck(f){
+  const errors={},g=n=>f.elements[n].value;
+  const truck=normTruck(g('truck'));if(!truck)errors.truck='Truck name / number is required';
+  const date=g('date');if(!validDate(date))errors.date='Select a valid date';
+  const q=checkNum(g('qty'),{label:'Quantity',required:true,gt:0});if(q.err)errors.qty=q.err;
+  const s=checkNum(g('sellPrice'),{label:'Selling price',required:true,gt:0});if(s.err)errors.sellPrice=s.err;
+  const m=checkNum(g('margin'),{label:'Margin',required:true});if(m.err)errors.margin=m.err;
+  return {errors,fields:{type:'truck',truck,date,qty:q.v,sellPrice:s.v,margin:m.v,procPrice:null,expenses:null,commodity:cleanStr(g('commodity'),80),customer:cleanStr(g('customer'),80),destination:cleanStr(g('destination'),80),remarks:cleanStr(g('remarks'),500)}};
+}
+function saveTruck(another){
+  if(Date.now()<S.lock)return;
+  const f=$('#truckForm');if(!f)return;
+  const {errors,fields}=validateTruck(f);
+  if(Object.keys(errors).length){const first=showErrors(f,errors);toast('Please fix the highlighted fields','error');if(first)first.focus();return;}
+  const editId=f.dataset.edit;
+  const dupe=DB.records.some(r=>r.id!==editId&&r.truck&&truckKey(r.truck)===truckKey(fields.truck)&&r.date===fields.date);
+  let rec;
+  if(editId){rec=dbUpdate(editId,fields);if(!rec){toast('That record no longer exists','error');Modal.close();render();return;}toast(`${rec.id} updated`);}
+  else{rec=dbAdd(fields);toast(`Truck entry ${rec.id} saved`);}
+  S.lock=Date.now()+500;
+  if(dupe)toast(`Note: another entry exists for ${fields.truck} on ${fmtDate(fields.date)}`,'warn');
+  Modal.close();render();
+  if(another)openTruckForm();
+}
+function detailHTML(r){
+  const row=(k,v)=>`<dt>${k}</dt><dd>${v}</dd>`;
+  let h=row('Transaction ID',`<span class="mono">${esc(r.id)}</span>`)+row('Type',TYPES[r.type])+row('Date',fmtDate(r.date))+row('Commodity',dash(r.commodity));
+  if(r.type!=='standard')h+=row('Truck',dash(r.truck));
+  h+=row('Quantity',fmtIN(r.qty)+' Qtl');
+  if(r.sellPrice!=null)h+=row('Selling price',inr(r.sellPrice)+' /Qtl');
+  if(r.type==='standard')h+=row('Procurement price',inr(r.procPrice)+' /Qtl');
+  if(r.type!=='standard')h+=row('Margin',`<span class="${sgnCls(r.margin)}">${inr(r.margin)} /Qtl</span>`);
+  if(r.sellPrice!=null)h+=row('Sales turnover',inr(r2(salesOf(r))));
+  if(r.type==='standard'){const m=standardMetrics(r),e=r.expenses;
+    h+=row('Procurement value',inr(m.proc))+row('Transportation',inr(e.transport))+row('Loading',inr(e.loading))+row('Other expenses',inr(e.other));
+    e.extras.forEach(x=>{h+=row(esc(x.name),inr(x.amount));});
+    h+=row('Total expenses',inr(m.exp))+row('Gross trading margin',`<span class="${sgnCls(m.gross)}">${inr(m.gross)}</span>`)+row('Net profit',`<b class="${sgnCls(m.net)}">${inr(m.net)}</b>`)+row('Net profit / Qtl',`<span class="${sgnCls(m.netPerQ)}">${inr(m.netPerQ)}</span>`)+row('Break-even price',inr(m.breakEven)+' /Qtl');
+  }
+  h+=row('Customer',dash(r.customer));
+  if(r.type==='truck')h+=row('Destination',dash(r.destination));
+  h+=row('Status',`<span class="badge ${statusCls(statusOf(r))}">${statusOf(r)}</span>`)+row('Remarks',dash(r.remarks))+row('Created',new Date(r.createdAt).toLocaleString('en-IN'))+row('Last updated',new Date(r.updatedAt).toLocaleString('en-IN'));
+  return `<dl class="dl">${h}</dl>`;
+}
+function viewTx(id){
+  const r=getRec(id);if(!r){toast('Record not found','error');return;}
+  Modal.open({title:'Transaction details',body:detailHTML(r),wide:true,footer:`<button class="btn danger" data-action="tx-delete" data-id="${esc(id)}">Delete</button><button class="btn" data-action="tx-edit" data-id="${esc(id)}">Edit</button><button class="btn primary" data-action="modal-close">Close</button>`});
+}
+function editTx(id){
+  const r=getRec(id);if(!r)return;
+  Modal.close();
+  if(r.type==='truck')openTruckForm(id);else startEditCalc(id);
+}
+async function deleteTx(id){
+  const r=getRec(id);if(!r)return;
+  Modal.close();
+  const ok=await confirmDialog({title:'Delete transaction?',message:`Permanently delete <b>${esc(r.id)}</b> (${fmtDate(r.date)}${r.truck?' · '+esc(r.truck):''}${r.commodity?' · '+esc(r.commodity):''}, ${fmtIN(r.qty)} Qtl)? This cannot be undone.`,confirmLabel:'Delete',danger:true});
+  if(!ok)return;
+  if(dbRemove(id)){toast(`${id} deleted`);if(S.calc.editingId===id){S.calc.editingId=null;S.calc.draft=blankDraft();}render();}
+}
+
+/* =====================================================================
+   VIEW: TRUCK TRADING
+   ===================================================================== */
+VIEWS.trucks=function(){
+  const recs=DB.records.filter(r=>r.type==='truck'),f=S.tk;
+  if(f.commodity&&!recs.some(r=>r.commodity===f.commodity))f.commodity='';
+  if(f.customer&&!recs.some(r=>r.customer===f.customer))f.customer='';
+  view().innerHTML=`${pageHead('Truck Trading','Truck-wise entries — quantity, selling price and margin per quintal',`<button class="btn primary" data-action="truck-add">${ICON('plus',16)} Add Truck Entry</button>`)}
+  <section class="kpis" id="tkStats"></section>
+  <section class="card filters" aria-label="Filters">
+   <div class="field"><label for="tk-q">Search truck number</label><input id="tk-q" data-scope="tk" data-f="q" value="${esc(f.q)}" placeholder="e.g. KA34 AB 1234" type="search"></div>
+   <div class="field"><label for="tk-from">From date</label><input id="tk-from" type="date" data-scope="tk" data-f="from" value="${esc(f.from)}"></div>
+   <div class="field"><label for="tk-to">To date</label><input id="tk-to" type="date" data-scope="tk" data-f="to" value="${esc(f.to)}"></div>
+   <div class="field"><label for="tk-com">Commodity</label><select id="tk-com" data-scope="tk" data-f="commodity">${selOpts(uniq(recs,'commodity'),f.commodity,'All commodities')}</select></div>
+   <div class="field"><label for="tk-cus">Customer</label><select id="tk-cus" data-scope="tk" data-f="customer">${selOpts(uniq(recs,'customer'),f.customer,'All customers')}</select></div>
+   <button class="btn" data-action="clear-filters" data-scope="tk">Clear filters</button>
+  </section>
+  <div id="tkResults"></div>`;
+  updateTrucks();
+};
+function updateTrucks(){
+  const all=DB.records.filter(r=>r.type==='truck'),f=S.tk;
+  const list=filterRecords(all,f,'truck'),A=aggregate(list);
+  const st=$('#tkStats');if(!st)return;
+  st.innerHTML=kpi('Entries',fmtIN(list.length),all.length!==list.length?`of ${all.length} total`:'')+kpi('Total Quantity',fmtIN(r2(A.qty))+' <small class="muted">Qtl</small>')+kpi('Sales Turnover',inr(r2(A.sales)),inWords(A.sales),'accent')+kpi('Avg Selling Price',A.wPrice==null?'—':inr(r2(A.wPrice))+' <small class="muted">/Qtl</small>','quantity-weighted');
+  const sorted=sortList(list,f.sort),pages=Math.max(1,Math.ceil(sorted.length/PAGE));if(f.page>pages)f.page=pages;
+  const rows=sorted.slice((f.page-1)*PAGE,f.page*PAGE);
+  let h;
+  if(!all.length)h=`<div class="card empty">${ICON('truck',34)}<b>No truck entries yet</b><p>Record a truck with its quantity, selling price and margin.</p><button class="btn primary" data-action="truck-add">${ICON('plus',16)} Add Truck Entry</button></div>`;
+  else if(!rows.length)h=`<div class="card empty">${ICON('inbox',30)}<b>No entries match these filters</b><button class="btn" data-action="clear-filters" data-scope="tk">Clear filters</button></div>`;
+  else h=`<div class="tbl-wrap"><table><thead><tr>${thBtn('tk','date','Date')}${thBtn('tk','truck','Truck')}${thBtn('tk','commodity','Commodity')}${thBtn('tk','qty','Qty (Qtl)','num')}${thBtn('tk','sellPrice','Selling price ₹/Qtl','num')}${thBtn('tk','margin','Margin ₹/Qtl','num')}${thBtn('tk','turnover','Sales turnover','num')}${thBtn('tk','customer','Customer')}${thBtn('tk','destination','Destination')}<th class="plain num">Actions</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${fmtDate(r.date)}</td><td><b>${esc(r.truck)}</b></td><td>${dash(r.commodity)}</td><td class="num">${fmtIN(r.qty)}</td><td class="num">${inr(r.sellPrice)}</td><td class="num ${sgnCls(r.margin)}">${inr(r.margin)}</td><td class="num">${inr(r2(salesOf(r)))}</td><td>${dash(r.customer)}</td><td>${dash(r.destination)}</td><td>${rowActions(r)}</td></tr>`).join('')}</tbody></table></div>${pagerHTML('tk',sorted.length,f.page)}`;
+  $('#tkResults').innerHTML=h;
+}
+
+/* =====================================================================
+   VIEW: TRANSACTIONS
+   ===================================================================== */
+VIEWS.transactions=function(){
+  const f=S.tx,all=DB.records;
+  if(f.commodity&&!all.some(r=>r.commodity===f.commodity))f.commodity='';
+  if(f.customer&&!all.some(r=>r.customer===f.customer))f.customer='';
+  view().innerHTML=`${pageHead('Transaction History','Every calculation and truck entry in one place',`<button class="btn" data-action="tx-export">${ICON('download',16)} Export CSV</button><button class="btn" data-action="nav" data-id="calculator">${ICON('calc',16)} New Calculation</button><button class="btn primary" data-action="truck-add">${ICON('plus',16)} Truck Entry</button>`)}
+  <section class="card filters" aria-label="Filters">
+   <div class="field"><label for="tx-q">Search</label><input id="tx-q" data-scope="tx" data-f="q" value="${esc(f.q)}" placeholder="Truck, ID, commodity, customer…" type="search"></div>
+   <div class="field"><label for="tx-type">Type</label><select id="tx-type" data-scope="tx" data-f="type"><option value="">All types</option>${Object.entries(TYPES).map(([k,v])=>`<option value="${k}"${f.type===k?' selected':''}>${v}</option>`).join('')}</select></div>
+   <div class="field"><label for="tx-com">Commodity</label><select id="tx-com" data-scope="tx" data-f="commodity">${selOpts(uniq(all,'commodity'),f.commodity,'All commodities')}</select></div>
+   <div class="field"><label for="tx-cus">Customer</label><select id="tx-cus" data-scope="tx" data-f="customer">${selOpts(uniq(all,'customer'),f.customer,'All customers')}</select></div>
+   <div class="field"><label for="tx-st">Status</label><select id="tx-st" data-scope="tx" data-f="status"><option value="">All statuses</option>${['Complete','Incomplete','Loss'].map(s=>`<option${f.status===s?' selected':''}>${s}</option>`).join('')}</select></div>
+   <div class="field"><label for="tx-from">From date</label><input id="tx-from" type="date" data-scope="tx" data-f="from" value="${esc(f.from)}"></div>
+   <div class="field"><label for="tx-to">To date</label><input id="tx-to" type="date" data-scope="tx" data-f="to" value="${esc(f.to)}"></div>
+   <button class="btn" data-action="clear-filters" data-scope="tx">Clear filters</button>
+  </section>
+  <div id="txResults"></div>`;
+  updateTx();
+};
+function txFiltered(){return filterRecords(DB.records,S.tx,'all');}
+function updateTx(){
+  const f=S.tx,list=txFiltered(),sorted=sortList(list,f.sort),pages=Math.max(1,Math.ceil(sorted.length/PAGE));if(f.page>pages)f.page=pages;
+  const rows=sorted.slice((f.page-1)*PAGE,f.page*PAGE),el=$('#txResults');if(!el)return;
+  if(!DB.records.length){el.innerHTML=`<div class="card empty">${ICON('list',34)}<b>No transactions yet</b><p>Saved calculations and truck entries appear here.</p><div class="btnrow"><button class="btn primary" data-action="truck-add">${ICON('plus',16)} Truck Entry</button><button class="btn" data-action="nav" data-id="calculator">Open Calculator</button></div></div>`;return;}
+  if(!rows.length){el.innerHTML=`<div class="card empty">${ICON('inbox',30)}<b>No transactions match these filters</b><button class="btn" data-action="clear-filters" data-scope="tx">Clear filters</button></div>`;return;}
+  el.innerHTML=`<div class="tbl-wrap"><table><thead><tr>${thBtn('tx','date','Date')}${thBtn('tx','id','Transaction ID')}${thBtn('tx','commodity','Commodity')}${thBtn('tx','type','Type')}${thBtn('tx','truck','Truck')}${thBtn('tx','qty','Quantity','num')}${thBtn('tx','sellPrice','Selling price','num')}${thBtn('tx','margin','Margin ₹/Qtl','num')}${thBtn('tx','customer','Customer')}${thBtn('tx','status','Status')}<th class="plain num">Actions</th></tr></thead><tbody>${rows.map(r=>{const s=statusOf(r);return `<tr><td>${fmtDate(r.date)}</td><td class="mono">${esc(r.id)}</td><td>${dash(r.commodity)}</td><td><span class="badge mute">${TYPES[r.type]}</span></td><td>${dash(r.truck)}</td><td class="num">${fmtIN(r.qty)}</td><td class="num">${r.sellPrice==null?'<span class="muted">—</span>':inr(r.sellPrice)}</td><td class="num ${sgnCls(effMargin(r))}">${inr(r2(effMargin(r)))}</td><td>${dash(r.customer)}</td><td><span class="badge ${statusCls(s)}">${s}</span></td><td>${rowActions(r)}</td></tr>`;}).join('')}</tbody></table></div>${pagerHTML('tx',sorted.length,f.page)}`;
+}
+
+/* =====================================================================
+   VIEW: ANALYTICS
+   ===================================================================== */
+VIEWS.analytics=function(){
+  const list=periodRecords(),alerts=alertsInPeriod(),b=bucketize(list),word=b.mode==='day'?'daily':'monthly';
+  const truckQ=groupStats(list,r=>truckKey(r.truck),(k,arr)=>arr[0].truck).filter(x=>x.key).map(x=>({label:x.label,value:r2(x.qty)})).sort((a,b)=>b.value-a.value).slice(0,12);
+  const monthCount=(()=>{const g=new Map();list.forEach(r=>g.set(r.date.slice(0,7),(g.get(r.date.slice(0,7))||0)+1));return [...g.keys()].sort().map(k=>({label:fmtMonth(k),value:g.get(k)}));})();
+  const sales=r=>salesOf(r);
+  view().innerHTML=`${pageHead('Analytics & Reports','Trends, distribution and performance — '+esc(rangeLabel()),`<button class="btn" data-action="report-pdf">${ICON('file',16)} Download PDF</button><button class="btn" data-action="analytics-csv">${ICON('download',16)} Export CSV</button>`)}
+  ${periodBar()}
+  ${DB.records.length?'':onboarding()}
+  ${profitSummaryHTML(list)}
+  ${insightsHTML(list)}
+  <section class="grid g2">
+   ${chartCard('1 · Daily trading volume','Quintals per day (latest 45 trading days)',barChart(volumeBy(list,false),{unit:' Qtl'}))}
+   ${chartCard('2 · Monthly trading volume','Quintals per month',barChart(volumeBy(list,true),{unit:' Qtl',color:'var(--c3)'}))}
+   ${chartCard('3 · Sales turnover trend',`${word} turnover (₹)`,lineChart(b.items.filter(i=>i.sales>0).map(i=>({label:i.label,value:r2(i.sales)})),{fmt:v=>inr(v),color:'var(--c1)'}))}
+   ${chartCard('4 · Selling price trend',`${word} weighted average (₹/Qtl)`,lineChart(b.items.filter(i=>i.wPrice!=null).map(i=>({label:i.label,value:r2(i.wPrice)})),{fmt:v=>inr(v),color:'var(--c3)'}))}
+   ${chartCard('5 · Margin trend',`${word} weighted average (₹/Qtl)`,lineChart(b.items.filter(i=>i.wMargin!=null).map(i=>({label:i.label,value:r2(i.wMargin)})),{fmt:v=>inr(v),color:'var(--c2)'}))}
+   ${chartCard('6 · Commodity-wise quantity','Share of quintals traded',doughnut(sumBy(list,r=>r.commodity||'Unspecified',r=>r.qty),{unit:' Qtl'}))}
+   ${chartCard('7 · Customer-wise sales','Share of sales turnover (₹)',doughnut(sumBy(list.filter(r=>r.sellPrice!=null),r=>r.customer||'Unspecified',sales),{fmt:v=>inr(v)}))}
+   ${chartCard('8 · Truck-wise quantity comparison','Top 12 trucks by quintals',hbarChart(truckQ,{unit:' Qtl'}))}
+   ${chartCard('9 · Monthly transaction count','Transactions per month',barChart(monthCount,{color:'var(--c4)',unit:' txns'}))}
+   ${chartCard('10 · Expense breakdown','Standard calculator transactions (₹)',doughnut(expenseBreakdown(list),{fmt:v=>inr(v)}))}
+   ${chartCard('11 · Profit trend',`${word} total profit (₹) – losses in red`,barChart(b.items.map(i=>({label:i.label,value:r2(i._p)})),{fmt:v=>inr(v),color:'var(--c2)'}))}
+   ${chartCard('12 · Profit by commodity','Total profit (₹), highest first – losses in red',barChart(sumBy(list,r=>r.commodity||'Unspecified',profitInternal).sort((x,y)=>y.value-x.value).slice(0,12),{fmt:v=>inr(v),color:'var(--c1)'}))}
+  </section>
+  <section class="card" style="margin-bottom:14px"><h3>Business alerts</h3><p class="sub">${alerts.length} alert${alerts.length===1?'':'s'} in this period · alerts never modify your data</p>${alertListHTML(alerts,50)}</section>
+  <section class="card"><h3>Performance reports</h3><p class="sub">Quantity-weighted averages, with total profit per row. Profit is shown here in Analytics only – the Truck Trading and Transactions screens keep it hidden.</p>
+   <div class="tabs" role="tablist">${REPORTS.map(([k,l])=>`<button class="chip${S.report===k?' on':''}" role="tab" aria-selected="${S.report===k}" data-action="report-tab" data-key="${k}">${l}</button>`).join('')}</div>
+   ${reportTableHTML(S.report,list)}</section>`;
+};
+
+/* =====================================================================
+   VIEW: SETTINGS
+   ===================================================================== */
+VIEWS.settings=function(){
+  const n=DB.records.length,samples=DB.records.filter(r=>r.sample).length;
+  const th=document.documentElement.getAttribute('data-theme');
+  view().innerHTML=`${pageHead('Settings & Data Management','Appearance, backup, restore and exports')}
+  <div class="settings-grid">
+   <section class="card"><h3>Appearance</h3><p class="sub">Executive dark theme is the default.</p>
+    <div class="field"><label for="themeSel">Theme</label><select id="themeSel" data-theme-select><option value="dark"${th==='dark'?' selected':''}>Dark</option><option value="light"${th==='light'?' selected':''}>Light</option></select></div></section>
+   <section class="card"><h3>Storage</h3><p class="sub">Where your records live</p>
+    <div class="rows"><div class="r"><span>Records stored</span><b>${fmtIN(n)}</b></div><div class="r"><span>Storage</span><b>${DB.storageOk&&!DB.writeFailed?'<span class="pos">Browser local storage – OK</span>':'<span class="neg">Not persistent – export a backup</span>'}</b></div></div></section>
+   <section class="card"><h3>Sync across devices</h3><p class="sub">Your records are kept in step on every device you sign in to.</p><div id="syncBody"></div></section>
+   <section class="card"><h3>Backup &amp; export</h3><p class="sub">Keep a copy outside the browser</p>
+    <div class="stack"><div class="btnrow"><button class="btn primary" data-action="export-json">${ICON('download',16)} Export all data (JSON)</button><button class="btn" data-action="export-all-pdf">${ICON('file',16)} Download PDF report</button><button class="btn" data-action="export-all-csv">${ICON('download',16)} Export all (CSV)</button></div></div></section>
+   <section class="card"><h3>Restore from backup</h3><p class="sub">Choose a JSON file exported from AgriMargin. It is validated first; nothing changes until you confirm.</p>
+    <div class="field"><label for="importFile">Backup file (.json)</label><input id="importFile" type="file" accept=".json,application/json" data-import></div></section>
+   <section class="card"><h3>Sample data</h3><p class="sub">Explore the dashboard with demo records, then remove them in one click.</p>
+    <div class="btnrow"><button class="btn" data-action="sample-load">Load sample data</button><button class="btn" data-action="sample-remove" ${samples?'':'disabled'}>Remove sample data (${samples})</button></div></section>
+   <section class="card danger-zone"><h3>Danger zone</h3><p class="sub">Permanently delete every record in this browser.</p>
+    <button class="btn danger" data-action="clear-all" ${n?'':'disabled'}>${ICON('trash',16)} Delete all data</button></section>
+  </div>`;
+  renderSyncCard();
+};
+
+/* ---------- sample data ---------- */
+function sampleRecords(){
+  let seed=20260611;const rnd=()=>{seed=(seed*1664525+1013904223)%4294967296;return seed/4294967296;};
+  const pick=a=>a[Math.floor(rnd()*a.length)];
+  const com=[{n:'Chana',p:6200,m:[80,220]},{n:'Maize',p:2250,m:[40,120]},{n:'Turmeric',p:14500,m:[200,520]},{n:'Soybean',p:4700,m:[60,160]},{n:'Tur Dal',p:9100,m:[100,300]}];
+  const cus=['Sri Lakshmi Traders','Annapurna Foods','Bhavani Agro','Mahalakshmi Mills','Karnataka Grain Co.'],pl=['Bengaluru','Hubballi','Davanagere','Hyderabad','Chennai'];
+  const trucks=['KA 34 AB 1234','KA 01 CD 5678','KA 05 EF 9012','AP 39 GH 3456','TN 09 JK 7788','KA 32 MN 2468'];
+  const today=todayStr(),out=[];
+  for(let i=0;i<42;i++){
+    const c=pick(com),date=addDays(today,-Math.floor(rnd()*75)),qty=Math.round((120+rnd()*330)*2)/2;
+    const price=Math.round(c.p*(0.94+rnd()*0.12)/5)*5;let margin=Math.round(c.m[0]+rnd()*(c.m[1]-c.m[0]));
+    if(i%13===7)margin=-Math.round(20+rnd()*60);
+    out.push({type:'truck',date,truck:pick(trucks),commodity:c.n,qty,sellPrice:price,margin,customer:i%6===0?'':pick(cus),destination:i%5===0?'':pick(pl),remarks:''});
+  }
+  for(let i=0;i<5;i++){const c=pick(com);out.push({type:'margin',date:addDays(today,-Math.floor(rnd()*50)),truck:i%2?pick(trucks):'',commodity:c.n,qty:Math.round(100+rnd()*200),margin:Math.round(c.m[0]+rnd()*(c.m[1]-c.m[0])),customer:pick(cus)});}
+  for(let i=0;i<6;i++){const c=pick(com),proc=Math.round(c.p*(0.9+rnd()*.05)/5)*5;
+    out.push({type:'standard',date:addDays(today,-Math.floor(rnd()*70)),commodity:c.n,qty:Math.round(100+rnd()*250),procPrice:proc,sellPrice:Math.round(proc*(1.02+rnd()*.05)/5)*5,expenses:{transport:Math.round(6000+rnd()*9000),loading:Math.round(800+rnd()*1500),other:Math.round(500+rnd()*2000),extras:i%2?[{name:'Unloading',amount:Math.round(700+rnd()*900)}]:[]},customer:pick(cus)});}
+  out.sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0);
+  return out;
+}
+async function loadSample(){
+  const ok=await confirmDialog({title:'Load sample data?',message:'This adds about 53 demo records alongside your existing data. You can remove them later from Settings → Sample data.',confirmLabel:'Add sample records'});
+  if(!ok)return;
+  const recs=sampleRecords(),now=nowIso();
+  recs.forEach(f=>{const rec=Object.assign({},DEFAULTS,f,{id:nextId(),sample:true,createdAt:now,updatedAt:now});DB.records.push(rec);DB.dirty.add(rec.id);});
+  persist();toast(`Added ${recs.length} sample records`);render();
+}
+async function removeSample(){
+  const n=DB.records.filter(r=>r.sample).length;if(!n)return;
+  const ok=await confirmDialog({title:'Remove sample data?',message:`Remove ${n} sample record(s)? Your own records are not touched.`,confirmLabel:'Remove',danger:true});
+  if(!ok)return;dbSetRecords(DB.records.filter(r=>!r.sample));toast(`Removed ${n} sample records`);render();
+}
+async function clearAll(){
+  const ok=await confirmDialog({title:'Delete all data?',message:`This permanently deletes all <b>${DB.records.length}</b> records from this browser. Export a JSON backup first if you may need them.`,confirmLabel:'Delete everything',danger:true,typed:'DELETE'});
+  if(!ok)return;dbSetRecords([]);S.calc.draft=blankDraft();S.calc.editingId=null;toast('All data deleted');render();
+}
+
+/* ---------- import ---------- */
+let pendingImport=null;
+function handleImportFile(file){
+  if(!file)return;
+  if(file.size>25*1024*1024){toast('File is too large (max 25 MB)','error');return;}
+  const fr=new FileReader();
+  fr.onerror=()=>toast('Could not read the file','error');
+  fr.onload=()=>processImport(String(fr.result),file.name);
+  fr.readAsText(file);
+}
+function processImport(text,name){
+  let data;
+  try{data=JSON.parse(text.replace(/^\ufeff/,''));}catch(e){toast('That file is not valid JSON – nothing was imported','error');return;}
+  const arr=Array.isArray(data)?data:(data&&Array.isArray(data.records)?data.records:null);
+  if(!arr){toast('This does not look like an AgriMargin backup (no records list) – nothing was imported','error');return;}
+  if(!Array.isArray(data)&&data.app&&data.app!=='AgriMargin'){toast('This backup was not created by AgriMargin – nothing was imported','error');return;}
+  const valid=[],bad=[],seen=new Set();
+  arr.forEach((raw,i)=>{const s=sanitizeRecord(raw);
+    if(s.error)bad.push(`Row ${i+1}: ${s.error}`);
+    else if(seen.has(s.rec.id))bad.push(`Row ${i+1}: duplicate id ${s.rec.id} in file`);
+    else{seen.add(s.rec.id);valid.push(s.rec);}});
+  if(!valid.length){toast(`No valid records found in ${name} – nothing was imported`,'error');return;}
+  const existing=new Set(DB.records.map(r=>r.id)),fresh=valid.filter(r=>!existing.has(r.id));
+  pendingImport={valid,fresh};
+  Modal.open({title:'Restore backup',body:`<p><b>${esc(name)}</b> contains <b>${arr.length}</b> record(s): <b class="pos">${valid.length} valid</b>${bad.length?`, <b class="neg">${bad.length} invalid</b> (will be skipped)`:''}.</p>
+   ${bad.length?`<div class="notice warn" style="margin-top:10px"><b>Skipped:</b><br>${bad.slice(0,6).map(esc).join('<br>')}${bad.length>6?`<br>…and ${bad.length-6} more`:''}</div>`:''}
+   <div class="rows" style="margin-top:10px"><div class="r"><span>Records currently in AgriMargin</span><b>${DB.records.length}</b></div><div class="r"><span>New records in file (not already present)</span><b>${fresh.length}</b></div></div>
+   <p class="muted" style="margin-top:10px">Nothing has been changed yet. <b>Merge</b> adds only new records and keeps all your existing ones. <b>Replace</b> deletes your ${DB.records.length} current record(s) and uses the file instead.</p>`,
+   footer:`<button class="btn" data-action="modal-close">Cancel</button><button class="btn" data-action="import-merge">Merge (add ${fresh.length} new)</button><button class="btn danger" data-action="import-replace">Replace all data</button>`});
+}
+function applyImport(mode){
+  if(!pendingImport)return;
+  const {valid,fresh}=pendingImport;pendingImport=null;
+  dbSetRecords(mode==='replace'?valid.slice():DB.records.concat(fresh),{touch:true});
+  Modal.close();
+  toast(mode==='replace'?`Restored ${valid.length} records (previous data replaced)`:`Merged ${fresh.length} new record(s); ${valid.length-fresh.length} already existed and were kept`);
+  const inp=$('#importFile');if(inp)inp.value='';render();
+}
+
+/* =====================================================================
+   EVENTS
+   ===================================================================== */
+S.lock=0;
+const ACTIONS={
+  'open-nav':()=>document.body.classList.add('nav-open'),
+  'close-nav':()=>document.body.classList.remove('nav-open'),
+  theme:()=>toggleTheme(),
+  nav:t=>navigate(t.dataset.id),
+  'modal-close':()=>Modal.close(),
+  'confirm-yes':()=>resolveConfirm(true),'confirm-no':()=>resolveConfirm(false),
+  period:t=>{const k=t.dataset.key;S.period.key=k;if(k==='custom'&&!S.period.from&&!S.period.to){S.period.to=todayStr();S.period.from=addDays(todayStr(),-29);}render();},
+  'calc-mode':t=>{readCalcDOM();S.calc.draft.mode=t.dataset.mode;applyCalcMode();renderCalcResults();},
+  'calc-add-extra':()=>{const d=readCalcDOM();d.extras.push({name:'',amount:''});$('#extras').innerHTML=d.extras.map(extraRowHTML).join('');const r=$$('.extra-row [data-x=name]');if(r.length)r[r.length-1].focus();renderCalcResults();},
+  'calc-del-extra':t=>{const d=readCalcDOM();d.extras.splice(+t.dataset.i,1);$('#extras').innerHTML=d.extras.map(extraRowHTML).join('');renderCalcResults();},
+  'calc-reset':()=>{const d=S.calc.draft;S.calc.draft=Object.assign(blankDraft(),{mode:d?d.mode:'standard'});S.calc.editingId=null;VIEWS.calculator();toast('Calculator reset','info');},
+  'calc-cancel-edit':()=>{S.calc.editingId=null;S.calc.draft=blankDraft();VIEWS.calculator();},
+  'calc-export':()=>exportCalc(),
+  'truck-add':()=>openTruckForm(),
+  'truck-save-another':()=>saveTruck(true),
+  'tx-view':t=>viewTx(t.dataset.id),'tx-edit':t=>editTx(t.dataset.id),'tx-delete':t=>deleteTx(t.dataset.id),
+  'tx-export':()=>{const l=sortList(txFiltered(),S.tx.sort);if(!l.length){toast('No records to export','warn');return;}exportTxCSV(l);},
+  sort:t=>{const sc=S[t.dataset.scope],k=t.dataset.key;if(sc.sort.key===k)sc.sort.dir=sc.sort.dir==='asc'?'desc':'asc';else{sc.sort={key:k,dir:['date','qty','sellPrice','margin','turnover'].includes(k)?'desc':'asc'};}sc.page=1;t.dataset.scope==='tk'?updateTrucks():updateTx();},
+  page:t=>{const sc=S[t.dataset.scope];sc.page=Math.max(1,sc.page+ +t.dataset.dir);t.dataset.scope==='tk'?updateTrucks():updateTx();},
+  'clear-filters':t=>{const s=t.dataset.scope,keep=S[s].sort;S[s]=s==='tk'?{q:'',from:'',to:'',commodity:'',customer:'',sort:keep,page:1}:{q:'',type:'',commodity:'',customer:'',status:'',from:'',to:'',sort:keep,page:1};render();},
+  'report-tab':t=>{S.report=t.dataset.key;VIEWS.analytics();},
+  'report-pdf':()=>{const l=periodRecords();if(!l.length){toast('No data in this period to report','warn');return;}download(`agrimargin-report-${stamp()}.pdf`,pdfReport(l,rangeLabel()));toast('PDF report downloaded');},
+  'analytics-csv':()=>{const l=periodRecords(),rows=reportRows(S.report,l);if(!rows.length){toast('No data in this period to export','warn');return;}
+    const out=[[REPORT_COL[S.report],'Transactions','Quantity (Qtl)','Sales Turnover (Rs)','Weighted Avg Price (Rs/Qtl)','Weighted Avg Margin (Rs/Qtl)','Total Profit (Rs)']];
+    rows.forEach(a=>out.push([a.label,a.n,r2(a.qty),r2(a.sales),a.wPrice==null?null:r2(a.wPrice),a.wMargin==null?null:r2(a.wMargin),r2(a._p)]));
+    download(`agrimargin-${S.report}-report-${stamp()}.csv`,toCSV(out),'text/csv;charset=utf-8');toast('Report exported');},
+  'export-json':()=>exportJSON(),
+  'export-all-csv':()=>{if(!DB.records.length){toast('No records to export','warn');return;}exportTxCSV(sortList(DB.records,{key:'date',dir:'desc'}));},
+  'export-all-pdf':()=>{if(!DB.records.length){toast('No records to report on','warn');return;}download(`agrimargin-report-${stamp()}.pdf`,pdfReport(DB.records,'All time'));toast('PDF report downloaded');},
+  'import-merge':()=>applyImport('merge'),'import-replace':()=>applyImport('replace'),
+  'sample-load':()=>loadSample(),'sample-remove':()=>removeSample(),'clear-all':()=>clearAll()
+};
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-action]');if(!t||t.disabled)return;
+  const h=ACTIONS[t.dataset.action];if(h){if(t.tagName==='A')e.preventDefault();h(t,e);}
+});
+document.addEventListener('submit',e=>{
+  e.preventDefault();
+  if(e.target.id==='calcForm')saveCalc();
+  else if(e.target.id==='truckForm')saveTruck(false);
+  else if(e.target.id==='loginForm')doLogin();
+  else if(e.target.id==='resetForm')doReset();
+  else if(e.target.id==='pwForm')doChangePassword();
+  else if(e.target.id==='recForm')doRecoveryKey();
+});
+function onFieldChange(e){
+  const t=e.target;if(!t||!t.closest)return;
+  if(t.closest('#calcForm')){renderCalcResults();return;}
+  if(t.closest('#truckForm')){truckPreview();return;}
+  if(t.id==='typedConfirm'){const b=$('[data-action=confirm-yes]');if(b)b.disabled=t.value.trim()!=='DELETE';return;}
+  if(t.dataset&&t.dataset.f&&t.dataset.scope){const sc=S[t.dataset.scope];sc[t.dataset.f]=t.value;sc.page=1;t.dataset.scope==='tk'?updateTrucks():updateTx();return;}
+  if(t.dataset&&t.dataset.period&&e.type==='change'){
+    const p=Object.assign({},S.period);p[t.dataset.period]=t.value;
+    if(p.from&&p.to&&p.from>p.to){toast('Start date is after the end date','error');render();return;}
+    S.period=p;render();return;
+  }
+  if(t.hasAttribute&&t.hasAttribute('data-theme-select')&&e.type==='change'){if(document.documentElement.getAttribute('data-theme')!==t.value)toggleTheme();return;}
+  if(t.hasAttribute&&t.hasAttribute('data-import')&&e.type==='change'){handleImportFile(t.files&&t.files[0]);}
+}
+document.addEventListener('input',onFieldChange);
+document.addEventListener('change',onFieldChange);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(Modal.isOpen()){if(!$('[data-sticky]'))Modal.close();}else document.body.classList.remove('nav-open');}});
+document.addEventListener('mousedown',e=>{Modal.downOnBack=(e.target.id==='modalBack');});
+document.addEventListener('click',e=>{if(e.target.id==='modalBack'&&Modal.downOnBack&&!$('#truckForm')&&!$('#pwForm')&&!$('#recForm')&&!$('[data-sticky]'))Modal.close();});
+window.addEventListener('hashchange',route);
+window.addEventListener('storage',e=>{if(e.key===KEY&&!Modal.isOpen()){dbLoad();render();}});
+let lastW=CW(),rt=null;
+window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{if(CW()!==lastW){lastW=CW();if(['overview','analytics'].includes(S.view)&&!Modal.isOpen())render();}},200);});
+
+/* =====================================================================
+   SYNC (only active when served by server.js; otherwise everything stays local)
+   ===================================================================== */
+const Sync={mode:'unknown',busy:false,again:false,timer:null,err:'',hasRecovery:null};
+const syncEnabled=()=>Sync.mode==='on'||Sync.mode==='offline';
+function scheduleSync(delay){if(!syncEnabled())return;clearTimeout(Sync.timer);Sync.timer=setTimeout(()=>syncNow(),delay==null?1200:delay);}
+function pendingCount(){return DB.dirty.size+Object.keys(DB.tomb).length;}
+function syncLabel(){
+  switch(Sync.mode){
+    case 'login':return 'Sign in to sync';
+    case 'offline':return 'Offline – will sync when connected';
+    case 'on':
+      if(Sync.busy)return 'Syncing…';
+      if(Sync.err)return 'Sync problem – will retry';
+      if(pendingCount())return 'Changes waiting to sync';
+      return 'Synced'+(DB.lastSync?' · '+new Date(DB.lastSync).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}):'');
+    default:return '';
+  }
+}
+function renderSyncCard(){
+  const el=$('#syncBody');if(!el)return;
+  if(Sync.mode==='off'||Sync.mode==='unknown'){el.innerHTML='<p class="muted">Sync is not available in this copy – it only works when AgriMargin is served by its own server (the Render web-service deployment). Your data is stored in this browser.</p>';return;}
+  el.innerHTML=`<div class="rows"><div class="r"><span>Status</span><b>${esc(syncLabel()||'—')}</b></div><div class="r"><span>Last synced</span><b>${DB.lastSync?esc(new Date(DB.lastSync).toLocaleString('en-IN')):'Never'}</b></div><div class="r"><span>Waiting to upload</span><b>${pendingCount()}</b></div></div>${Sync.err?`<div class="notice warn" style="margin-top:10px">${esc(Sync.err)}</div>`:''}<div class="btnrow" style="margin-top:12px"><button class="btn primary" data-action="sync-now">Sync now</button><button class="btn" data-action="sync-logout">Sign out</button></div>
+  <h4 style="margin:18px 0 6px">Password &amp; recovery</h4><div class="rows"><div class="r"><span>Recovery key</span><b>${Sync.hasRecovery?'<span class="pos">Created</span>':'<span class="warn">Not created</span>'}</b></div></div>
+  <div class="btnrow" style="margin-top:10px"><button class="btn" data-action="pw-change">Change password</button><button class="btn" data-action="rec-open">${Sync.hasRecovery?'Replace recovery key':'Create recovery key'}</button></div>
+  <p class="hint" style="margin-top:10px">Signing out removes this device's local copy of your data. It stays safe on the server and returns when you sign in.</p>`;
+}
+function renderSyncStatus(){updateChrome();renderSyncCard();}
+async function apiFetch(path,body){
+  const r=await fetch(path,{method:body===undefined?'GET':'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','X-Requested-With':'agrimargin'},body:body===undefined?undefined:JSON.stringify(body)});
+  let j=null;try{j=await r.json();}catch(e){}
+  return {status:r.status,ok:r.ok,json:j&&j.app==='AgriMargin'?j:null};
+}
+async function syncProbe(){
+  if(!/^https?:$/.test(location.protocol)||typeof fetch!=='function'){Sync.mode='off';return;}
+  try{const r=await apiFetch('/api/session');Sync.mode=!r.json?'off':(r.json.authed?'on':'login');Sync.hasRecovery=r.json&&r.json.authed?!!r.json.hasRecovery:null;}
+  catch(e){Sync.mode='offline';}
+}
+function showLogin(msg,kind){
+  const root=$('#authRoot');
+  if(root.firstChild&&(!kind||root.dataset.kind===kind)){const e=$(root.dataset.kind==='reset'?'#resetErr':'#loginErr');if(e&&msg)e.textContent=msg;return;}
+  kind=kind||'login';Modal.close();$('#app').setAttribute('inert','');root.dataset.kind=kind;
+  const brand=t=>`<div class="brand" style="padding:0 0 14px"><div class="logo">${ICON('leaf',22)}</div><div><b>AgriMargin</b><small>${t}</small></div></div>`;
+  root.innerHTML=kind==='reset'
+   ?`<div class="modal-back auth-back"><form id="resetForm" class="modal" style="max-width:400px" novalidate autocomplete="off"><div class="modal-body">${brand('Reset your password')}${field('r-key','Recovery key',{name:'recoveryKey',ph:'XXXX-XXXX-XXXX-XXXX-XXXX',max:40})}${field('r-new','New password',{name:'next',type:'password',hint:'At least 8 characters'})}${field('r-conf','Confirm new password',{name:'confirm',type:'password'})}<small class="err" id="resetErr">${esc(msg||'')}</small><div class="form-actions"><button class="btn primary" type="submit" style="flex:1">Reset password</button></div><p class="muted" style="margin-top:12px;font-size:12.5px">Lost the key as well? In Render set <span class="mono">RESET_AUTH=true</span>, redeploy, sign in with your original <span class="mono">APP_PASSWORD</span>, then remove the variable.</p><p style="margin-top:8px"><button type="button" class="link" data-action="auth-back">Back to sign in</button></p></div></form></div>`
+   :`<div class="modal-back auth-back"><form id="loginForm" class="modal" style="max-width:380px" autocomplete="on"><div class="modal-body">${brand('Sign in to sync your data')}<div class="field"><label for="loginPw">Password</label><input id="loginPw" name="password" type="password" autocomplete="current-password"></div><small class="err" id="loginErr">${esc(msg||'')}</small><div class="form-actions"><button class="btn primary" type="submit" style="flex:1">Sign in</button></div><p style="margin-top:10px"><button type="button" class="link" data-action="auth-forgot">Forgot password?</button></p></div></form></div>`;
+  const f=$(kind==='reset'?'#r-key':'#loginPw');if(f)f.focus();
+}
+function hideLogin(){$('#authRoot').innerHTML='';$('#app').removeAttribute('inert');}
+async function doLogin(){
+  const pw=$('#loginPw').value;if(!pw)return;
+  try{
+    const r=await apiFetch('/api/login',{password:pw});
+    if(r.ok){Sync.mode='on';Sync.err='';Sync.hasRecovery=!!(r.json&&r.json.hasRecovery);hideLogin();toast('Signed in – syncing');syncNow();}
+    else $('#loginErr').textContent=r.status===429?'Too many attempts. Try again in a few minutes.':'Incorrect password.';
+  }catch(e){$('#loginErr').textContent='Could not reach the server.';}
+}
+/* ---------- password change, recovery key, reset, sign-out ---------- */
+let authBusy=false;
+const authMsg=r=>r.status===429?'Too many attempts. Try again in a few minutes.':((r.json&&r.json.error)||'Something went wrong');
+function showRecoveryKey(key,title){
+  Modal.open({title:title||'Your recovery key',body:`<div data-sticky><div class="notice warn">Save this key somewhere safe (a password manager or printed). It is shown <b>only once</b> and is the only way to reset a forgotten password. Anyone with the key can reset your password.</div><div class="res-hero" style="margin:0"><div class="l">Recovery key</div><div class="v mono" id="recKey" style="font-size:20px;letter-spacing:.04em;user-select:all;overflow-wrap:anywhere">${esc(key)}</div></div></div>`,
+   footer:`<button class="btn" data-action="rec-copy">Copy</button><button class="btn" data-action="rec-download">Download .txt</button><button class="btn primary" data-action="modal-close">I have saved it</button>`});
+}
+function openChangePassword(){
+  Modal.open({title:'Change password',body:`<form id="pwForm" novalidate autocomplete="off">${field('p-cur','Current password',{name:'current',type:'password'})}${field('p-new','New password',{name:'next',type:'password',hint:'At least 8 characters'})}${field('p-conf','Confirm new password',{name:'confirm',type:'password'})}<p class="muted">Other devices will be asked to sign in again with the new password. Your data is not affected.</p></form>`,
+   footer:`<button class="btn" data-action="modal-close">Cancel</button><button class="btn primary" type="submit" form="pwForm">Change password</button>`});
+}
+function openRecoveryKeyForm(){
+  Modal.open({title:Sync.hasRecovery?'Replace recovery key':'Create recovery key',body:`<form id="recForm" novalidate autocomplete="off"><p style="margin-bottom:12px">${Sync.hasRecovery?'A new key replaces the old one, which will stop working.':'The key lets you reset a forgotten password.'} Confirm your password to continue.</p>${field('k-pw','Password',{name:'password',type:'password'})}</form>`,
+   footer:`<button class="btn" data-action="modal-close">Cancel</button><button class="btn primary" type="submit" form="recForm">Generate key</button>`});
+}
+async function doChangePassword(){
+  const f=$('#pwForm');if(!f||authBusy)return;const g=n=>f.elements[n].value,errors={};
+  if(!g('current'))errors.current='Enter your current password';
+  if(g('next').length<8)errors.next='New password must be at least 8 characters';
+  else if(g('next')===g('current'))errors.next='Choose a password different from the current one';
+  if(g('confirm')!==g('next'))errors.confirm='Passwords do not match';
+  if(Object.keys(errors).length){const first=showErrors(f,errors);if(first)first.focus();return;}
+  authBusy=true;
+  try{
+    const r=await apiFetch('/api/change-password',{current:g('current'),next:g('next')});
+    if(r.ok){Modal.close();toast('Password changed. Other devices will need to sign in again.');}
+    else showErrors(f,r.status===400?{next:authMsg(r)}:{current:authMsg(r)});
+  }catch(e){showErrors(f,{next:'Could not reach the server'});}
+  finally{authBusy=false;}
+}
+async function doRecoveryKey(){
+  const f=$('#recForm');if(!f||authBusy)return;
+  if(!f.elements.password.value){showErrors(f,{password:'Enter your password'});return;}
+  authBusy=true;
+  try{
+    const r=await apiFetch('/api/recovery-key',{password:f.elements.password.value});
+    if(r.ok&&r.json&&r.json.recoveryKey){Sync.hasRecovery=true;showRecoveryKey(r.json.recoveryKey);renderSyncStatus();}
+    else showErrors(f,{password:authMsg(r)});
+  }catch(e){showErrors(f,{password:'Could not reach the server'});}
+  finally{authBusy=false;}
+}
+async function doReset(){
+  const f=$('#resetForm');if(!f||authBusy)return;const g=n=>f.elements[n].value,errors={};
+  if(!g('recoveryKey').trim())errors.recoveryKey='Enter your recovery key';
+  if(g('next').length<8)errors.next='New password must be at least 8 characters';
+  if(g('confirm')!==g('next'))errors.confirm='Passwords do not match';
+  if(Object.keys(errors).length){const first=showErrors(f,errors);if(first)first.focus();return;}
+  authBusy=true;
+  try{
+    const r=await apiFetch('/api/reset-password',{recoveryKey:g('recoveryKey'),next:g('next')});
+    if(r.ok&&r.json&&r.json.recoveryKey){Sync.mode='on';Sync.err='';Sync.hasRecovery=true;hideLogin();showRecoveryKey(r.json.recoveryKey,'Password reset – save your new recovery key');syncNow();}
+    else showErrors(f,r.status===400?{next:authMsg(r)}:{recoveryKey:authMsg(r)});
+  }catch(e){showErrors(f,{recoveryKey:'Could not reach the server'});}
+  finally{authBusy=false;}
+}
+function wipeLocal(){
+  clearTimeout(Sync.timer);
+  DB.records=[];DB.seq=0;resetSyncMeta();DB.mem=null;DB.writeFailed=false;DB.corrupt=false;DB.dropped=0;
+  try{localStorage.removeItem(KEY);localStorage.removeItem(KEY+'.corrupt-backup');}catch(e){}
+  S.calc={editingId:null,draft:null};S.period={key:'all',from:'',to:''};S.report='daily';
+  S.tk={q:'',from:'',to:'',commodity:'',customer:'',sort:{key:'date',dir:'desc'},page:1};
+  S.tx={q:'',type:'',commodity:'',customer:'',status:'',from:'',to:'',sort:{key:'date',dir:'desc'},page:1};
+}
+async function signOut(){
+  const ok=await confirmDialog({title:'Sign out and clear this device?',message:'Your data stays safe on the server. Signing out <b>removes the local copy from this device</b>; it downloads again when you sign in. Any changes not yet uploaded are sent first.',confirmLabel:'Sign out',danger:true});
+  if(!ok)return;
+  clearTimeout(Sync.timer);
+  for(let i=0;i<40&&Sync.busy;i++)await new Promise(r=>setTimeout(r,100));
+  await syncNow();
+  for(let i=0;i<40&&Sync.busy;i++)await new Promise(r=>setTimeout(r,100));
+  const n=pendingCount();
+  if(n>0){
+    const ok2=await confirmDialog({title:'Some changes have not uploaded',message:`<b>${n}</b> change${n===1?'':'s'} on this device could not be uploaded and will be <b>permanently lost</b> if you sign out now. Cancel, connect to the internet and press “Sync now”, or export a JSON backup first.`,confirmLabel:'Discard and sign out',danger:true});
+    if(!ok2){renderSyncStatus();return;}
+  }
+  try{await apiFetch('/api/logout',{});}catch(e){}
+  wipeLocal();Sync.mode='login';Sync.err='';Sync.hasRecovery=null;
+  Modal.close();render();showLogin();
+}
+
+function afterRemoteChange(){
+  refreshLists();updateChrome();
+  if(Modal.isOpen()||S.view==='calculator')return;
+  const a=document.activeElement;if(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)&&view().contains(a))return;
+  VIEWS[S.view]();
+}
+async function syncRound(){
+  const sent=new Map();DB.dirty.forEach(id=>{const r=getRec(id);if(r)sent.set(id,r.updatedAt);});
+  const tombs=Object.entries(DB.tomb).map(([id,at])=>({id,at}));
+  const r=await apiFetch('/api/sync',{serverId:DB.serverId,since:DB.syncRev,seq:DB.seq,upserts:[...sent.keys()].map(getRec),deletes:tombs});
+  if(r.status===401){Sync.mode='login';showLogin();throw Object.assign(new Error('auth'),{quiet:true});}
+  if(r.status===404||!r.json){Sync.mode='off';throw Object.assign(new Error('off'),{quiet:true});}
+  if(!r.ok)throw new Error('Server returned '+r.status);
+  const j=r.json;
+  if(j.reset)return j;
+  Sync.mode='on';
+  DB.seq=Math.max(DB.seq,j.seq|0);
+  let changed=false;
+  for(const id of j.conflicts||[]){                       // same id created on two devices → renumber ours
+    if(!getRec(id))continue;
+    const nid=nextId();
+    DB.records=DB.records.map(x=>x.id===id?Object.assign({},x,{id:nid,updatedAt:nowIso()}):x);
+    DB.dirty.delete(id);DB.dirty.add(nid);sent.delete(id);changed=true;
+  }
+  sent.forEach((ua,id)=>{const l=getRec(id);if(l&&l.updatedAt===ua)DB.dirty.delete(id);});
+  for(const raw of j.upserts||[]){
+    const s=sanitizeRecord(raw);if(!s.rec)continue;
+    const rec=s.rec,l=getRec(rec.id);
+    if(l&&DB.dirty.has(rec.id)&&l.updatedAt>=rec.updatedAt)continue;
+    if(l){if(l.updatedAt!==rec.updatedAt||l.createdAt!==rec.createdAt){DB.records[DB.records.indexOf(l)]=rec;changed=true;}}
+    else{DB.records.push(rec);changed=true;}
+    delete DB.tomb[rec.id];
+  }
+  for(const id of j.deletes||[]){const l=getRec(id);if(l&&!DB.dirty.has(id)){DB.records=DB.records.filter(x=>x.id!==id);changed=true;}}
+  tombs.forEach(t=>{if(DB.tomb[t.id]===t.at)delete DB.tomb[t.id];});
+  DB.syncRev=j.rev|0;DB.serverId=j.serverId;DB.lastSync=nowIso();
+  persist(true);
+  if(changed)afterRemoteChange();
+  return j;
+}
+async function syncNow(manual){
+  if(!syncEnabled())return;
+  if(Sync.busy){Sync.again=true;return;}
+  Sync.busy=true;Sync.err='';renderSyncStatus();
+  try{
+    if(!DB.serverId&&DB.records.length)DB.records.forEach(r=>DB.dirty.add(r.id));   // first sync ever: upload what is already here
+    for(let i=0;i<4;i++){
+      const res=await syncRound();
+      if(res.reset){                                                               // server data was reset → re-upload everything we have
+        DB.serverId='';DB.syncRev=0;DB.records.forEach(r=>DB.dirty.add(r.id));continue;
+      }
+      if(!(res.conflicts&&res.conflicts.length))break;                             // renumbered records need one more round to upload
+    }
+    if(manual)toast('Sync complete');
+  }catch(e){
+    if(!e.quiet){
+      if(e&&e.name==='TypeError'){Sync.mode='offline';if(manual)toast('Offline – changes will sync later','warn');}
+      else{Sync.err=e.message||'Sync failed';if(manual)toast('Sync failed: '+Sync.err,'error');}
+    }
+  }finally{
+    Sync.busy=false;renderSyncStatus();
+    if(Sync.again){Sync.again=false;scheduleSync(300);}
+  }
+}
+Object.assign(ACTIONS,{
+  'sync-now':()=>syncNow(true),
+  'sync-logout':()=>signOut(),
+  'auth-forgot':()=>showLogin('','reset'),'auth-back':()=>showLogin('','login'),
+  'pw-change':()=>openChangePassword(),'rec-open':()=>openRecoveryKeyForm(),
+  'rec-copy':async()=>{const k=($('#recKey')||{}).textContent||'';try{await navigator.clipboard.writeText(k);toast('Recovery key copied');}catch(e){const r=document.createRange();r.selectNodeContents($('#recKey'));const sel=getSelection();sel.removeAllRanges();sel.addRange(r);toast('Select and copy the key shown','info');}},
+  'rec-download':()=>{const k=($('#recKey')||{}).textContent||'';download('agrimargin-recovery-key.txt','AgriMargin recovery key\r\n\r\n'+k+'\r\n\r\nKeep this file private. Anyone with this key can reset your AgriMargin password.\r\n','text/plain;charset=utf-8');}
+});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')scheduleSync(200);});
+window.addEventListener('online',()=>scheduleSync(300));
+window.addEventListener('offline',()=>{if(Sync.mode==='on'){Sync.mode='offline';renderSyncStatus();}});
+setInterval(()=>{if(syncEnabled()&&!Sync.busy&&!document.hidden)syncNow();},45000);
+
+/* =====================================================================
+   BOOT
+   ===================================================================== */
+try{
+  buildShell();dbLoad();route();
+  syncProbe().then(()=>{if(Sync.mode==='login')showLogin();else if(syncEnabled())syncNow();renderSyncStatus();});
+}catch(err){
+  document.getElementById('view').innerHTML='<div class="card"><h3>Something went wrong</h3><p class="muted">'+esc(err&&err.message)+'</p></div>';
+  if(window.console)console.error(err);
+}
+window.AgriMargin={version:'1.2',_test:{Sync,syncNow,getRec,dbSetRecords,fmtIN,inr,standardMetrics,profitInternal,effMargin,aggregate,DB,S,sanitizeRecord,pdfReport,makePDF,computeAlerts,periodRange,reportRows,toCSV}};
+})();
+</script>
+</body>
+</html>

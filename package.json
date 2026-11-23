@@ -1,0 +1,11 @@
+{
+  "name": "agrimargin",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AgriMargin – commodity trading management with single-user sync",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test.js"
+  },
+  "engines": { "node": ">=18" }
+}

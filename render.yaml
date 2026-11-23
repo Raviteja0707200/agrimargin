@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: agrimargin
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: APP_PASSWORD     # you type this in the Render dashboard (min 8 chars)
+        sync: false
+      - key: SESSION_SECRET
+        generateValue: true
