@@ -289,9 +289,9 @@ const stamp=()=>todayStr().replace(/-/g,'');
 const TYPES={truck:'Truck',margin:'Margin-only',standard:'Standard'};
 const DEFAULTS={id:'',type:'truck',date:'',commodity:'',truck:'',qty:0,sellPrice:null,procPrice:null,margin:null,expenses:null,customer:'',destination:'',remarks:'',createdAt:'',updatedAt:''};
 
-function expensesOf(t){if(t.type!=='standard'||!t.expenses)return 0;const e=t.expenses;return (e.transport||0)+(e.loading||0)+(e.other||0)+(e.extras||[]).reduce((s,x)=>s+(x.amount||0),0);}
+function expensesOf(t){if(!t||!t.expenses)return 0;const e=t.expenses;return (e.transport||0)+(e.loading||0)+(e.other||0)+(e.extras||[]).reduce((s,x)=>s+(x.amount||0),0);}
 /* INTERNAL ONLY: total profit is never rendered for truck / margin-only records. */
-function profitInternal(t){return t.type==='standard'?t.qty*(t.sellPrice-t.procPrice)-expensesOf(t):t.qty*t.margin;}
+function profitInternal(t){return t.type==='standard'?t.qty*(t.sellPrice-t.procPrice)-expensesOf(t):t.qty*t.margin-expensesOf(t);}
 const effMargin=t=>profitInternal(t)/t.qty;
 const salesOf=t=>t.sellPrice==null?0:t.qty*t.sellPrice;
 function standardMetrics(t){
@@ -343,6 +343,13 @@ function sanitizeRecord(raw){
     if(!isN(raw.sellPrice)||Number(raw.sellPrice)<=0)return {error:'invalid selling price'};
     if(!isN(raw.margin))return {error:'invalid margin'};
     rec.sellPrice=Number(raw.sellPrice);rec.margin=Number(raw.margin);
+    if(raw.expenses!=null){
+      const e=raw.expenses||{};const ex={transport:0,loading:0,other:0,extras:[]};
+      for(const k of ['transport','loading','other']){if(e[k]==null||e[k]==='')continue;if(!isN(e[k])||Number(e[k])<0)return {error:'invalid '+k+' expense'};ex[k]=Number(e[k]);}
+      if(e.extras!=null){if(!Array.isArray(e.extras)||e.extras.length>30)return {error:'invalid extra expenses'};
+        for(const x of e.extras){if(!x||!isN(x.amount)||Number(x.amount)<0)return {error:'invalid extra expense amount'};ex.extras.push({name:cleanStr(x.name,40)||'Expense',amount:Number(x.amount)});}}
+      rec.expenses=ex;
+    }
   }else if(raw.type==='margin'){
     if(!isN(raw.margin))return {error:'invalid margin'};
     rec.margin=Number(raw.margin);
@@ -1033,12 +1040,33 @@ function startEditCalc(id){
 /* =====================================================================
    TRUCK FORM (modal) + detail modal
    ===================================================================== */
+function truckExtraRowHTML(x,i){
+  return `<div class="extra-row truck-extra-row" data-ti="${i}"><div class="field" style="margin:0"><input data-tx="name" aria-label="Expense name" placeholder="Expense name (e.g. Toll / Unloading)" value="${esc(x.name||'')}" maxlength="40"></div><div class="field" style="margin:0"><div class="inp hasPre"><span class="pre">₹</span><input data-tx="amount" inputmode="decimal" aria-label="Expense amount" placeholder="0" value="${x.amount!=null&&x.amount!==''?esc(x.amount):''}"></div></div><button type="button" class="icon-btn danger" data-action="truck-del-extra" data-ti="${i}" aria-label="Remove expense">${ICON('trash',15)}</button></div>`;
+}
 function truckFormHTML(r){
   r=r||{};
+  const e=r.expenses||{};
+  const extras=e.extras||[];
   return `<form id="truckForm" novalidate autocomplete="off" data-edit="${esc(r.id||'')}">
    <div class="row2">${field('t-truck','Truck Name / Number',{name:'truck',value:r.truck||'',req:1,list:'dl-truck',ph:'KA34 AB 1234',max:30})}${field('t-date','Transaction Date',{name:'date',type:'date',value:r.date||todayStr(),req:1})}</div>
    <div class="row2">${field('t-qty','Quantity',{name:'qty',value:r.qty!=null?r.qty:'',num:1,suf:'Qtl',req:1,ph:'0'})}${field('t-commodity','Commodity',{name:'commodity',value:r.commodity||'',list:'dl-commodity',ph:'e.g. Chana',max:80})}</div>
    <div class="row2">${field('t-sell','Selling Price',{name:'sellPrice',value:r.sellPrice!=null?r.sellPrice:'',num:1,pre:'₹',req:1,ph:'per quintal'})}${field('t-margin','Margin',{name:'margin',value:r.margin!=null?r.margin:'',num:1,pre:'₹',req:1,ph:'per quintal',hint:'Enter manually. May be negative.'})}</div>
+   <div class="card" style="margin:10px 0 14px;padding:12px 14px;background:var(--surface2);border-radius:10px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+     <label style="font-weight:600;font-size:13px;display:flex;align-items:center;gap:6px">${ICON('file',15)} Expenses (Optional)</label>
+     <span id="tExpTotal" class="muted" style="font-size:12px;font-weight:600">Total Expenses: ₹0</span>
+    </div>
+    <div class="row3">
+     ${field('t-transport','Transportation',{name:'transport',value:e.transport!=null&&e.transport!==0?e.transport:'',num:1,pre:'₹',ph:'0'})}
+     ${field('t-loading','Loading Charges',{name:'loading',value:e.loading!=null&&e.loading!==0?e.loading:'',num:1,pre:'₹',ph:'0'})}
+     ${field('t-other','Other Expenses',{name:'other',value:e.other!=null&&e.other!==0?e.other:'',num:1,pre:'₹',ph:'0'})}
+    </div>
+    <div class="field" style="margin-bottom:0">
+     <label style="font-size:12px;color:var(--muted)">Additional expense items</label>
+     <div id="tExtras" style="display:flex;flex-direction:column;gap:6px">${extras.map(truckExtraRowHTML).join('')}</div>
+     <button type="button" class="btn sm" data-action="truck-add-extra" style="margin-top:6px">${ICON('plus',14)} Add expense</button>
+    </div>
+   </div>
    <div class="row2">${field('t-customer','Customer / Buyer',{name:'customer',value:r.customer||'',list:'dl-customer',max:80})}${field('t-dest','Destination / Delivery Location',{name:'destination',value:r.destination||'',list:'dl-dest',max:80})}</div>
    <div class="field"><label for="t-remarks">Remarks</label><textarea id="t-remarks" name="remarks" maxlength="500">${esc(r.remarks||'')}</textarea></div>
    <div class="notice info" id="tPreview" style="margin:0">Sales turnover: —</div>
@@ -1050,10 +1078,40 @@ function openTruckForm(id){
    footer:`<button class="btn" data-action="modal-close">Cancel</button>${r?'':`<button class="btn" type="button" data-action="truck-save-another">Save &amp; Add Another</button>`}<button class="btn primary" type="submit" form="truckForm">${r?'Update Entry':'Save Entry'}</button>`});
   truckPreview();
 }
+function readTruckExpenses(f){
+  if(!f)return null;
+  const g=n=>(f.elements[n]||{}).value;
+  const tr=parseNum(g('transport')),ld=parseNum(g('loading')),ot=parseNum(g('other'));
+  const ex={transport:tr.v||0,loading:ld.v||0,other:ot.v||0,extras:[]};
+  const rows=f.querySelectorAll('.truck-extra-row');
+  rows.forEach(r=>{
+    const nEl=r.querySelector('[data-tx=name]');
+    const aEl=r.querySelector('[data-tx=amount]');
+    const p=parseNum(aEl?aEl.value:'');
+    if(p.v!=null&&p.v>0){
+      ex.extras.push({name:cleanStr(nEl?nEl.value:'',40)||'Expense',amount:p.v});
+    }
+  });
+  if(!ex.transport&&!ex.loading&&!ex.other&&!ex.extras.length)return null;
+  return ex;
+}
 function truckPreview(){
   const f=$('#truckForm'),p=$('#tPreview');if(!f||!p)return;
-  const q=parseNum(f.elements.qty.value),s=parseNum(f.elements.sellPrice.value);
-  p.textContent='Sales turnover: '+((q.v>0&&s.v>=0)?inr(r2(q.v*s.v)):'—');
+  const q=parseNum(f.elements.qty.value),s=parseNum(f.elements.sellPrice.value),m=parseNum(f.elements.margin.value);
+  const ex=readTruckExpenses(f);
+  const expAmt=ex?(ex.transport+ex.loading+ex.other+ex.extras.reduce((acc,x)=>acc+x.amount,0)):0;
+  const expTotalEl=$('#tExpTotal');if(expTotalEl)expTotalEl.textContent='Total Expenses: '+inr(expAmt);
+  let txt='Sales turnover: '+((q.v>0&&s.v>=0)?inr(r2(q.v*s.v)):'—');
+  if(q.v>0&&m.v!=null){
+    const grossProfit=q.v*m.v;
+    const netProfit=grossProfit-expAmt;
+    const netMargin=netProfit/q.v;
+    txt+=` · Gross Profit: ${inr(r2(grossProfit))}`;
+    if(expAmt>0){
+      txt+=` · Expenses: ${inr(r2(expAmt))} · <b>Net Profit: ${inr(r2(netProfit))}</b> (${inr(r2(netMargin))}/Qtl)`;
+    }
+  }
+  p.innerHTML=txt;
 }
 function validateTruck(f){
   const errors={},g=n=>f.elements[n].value;
@@ -1062,7 +1120,8 @@ function validateTruck(f){
   const q=checkNum(g('qty'),{label:'Quantity',required:true,gt:0});if(q.err)errors.qty=q.err;
   const s=checkNum(g('sellPrice'),{label:'Selling price',required:true,gt:0});if(s.err)errors.sellPrice=s.err;
   const m=checkNum(g('margin'),{label:'Margin',required:true});if(m.err)errors.margin=m.err;
-  return {errors,fields:{type:'truck',truck,date,qty:q.v,sellPrice:s.v,margin:m.v,procPrice:null,expenses:null,commodity:cleanStr(g('commodity'),80),customer:cleanStr(g('customer'),80),destination:cleanStr(g('destination'),80),remarks:cleanStr(g('remarks'),500)}};
+  const exp=readTruckExpenses(f);
+  return {errors,fields:{type:'truck',truck,date,qty:q.v,sellPrice:s.v,margin:m.v,procPrice:null,expenses:exp,commodity:cleanStr(g('commodity'),80),customer:cleanStr(g('customer'),80),destination:cleanStr(g('destination'),80),remarks:cleanStr(g('remarks'),500)}};
 }
 function saveTruck(another){
   if(Date.now()<S.lock)return;
@@ -1092,6 +1151,16 @@ function detailHTML(r){
     h+=row('Procurement value',inr(m.proc))+row('Transportation',inr(e.transport))+row('Loading',inr(e.loading))+row('Other expenses',inr(e.other));
     e.extras.forEach(x=>{h+=row(esc(x.name),inr(x.amount));});
     h+=row('Total expenses',inr(m.exp))+row('Gross trading margin',`<span class="${sgnCls(m.gross)}">${inr(m.gross)}</span>`)+row('Net profit',`<b class="${sgnCls(m.net)}">${inr(m.net)}</b>`)+row('Net profit / Qtl',`<span class="${sgnCls(m.netPerQ)}">${inr(m.netPerQ)}</span>`)+row('Break-even price',inr(m.breakEven)+' /Qtl');
+  }else if(r.type==='truck'&&r.expenses&&expensesOf(r)>0){
+    const e=r.expenses,exp=expensesOf(r);
+    if(e.transport)h+=row('Transportation',inr(e.transport));
+    if(e.loading)h+=row('Loading',inr(e.loading));
+    if(e.other)h+=row('Other expenses',inr(e.other));
+    (e.extras||[]).forEach(x=>{if(x.amount)h+=row(esc(x.name),inr(x.amount));});
+    h+=row('Total expenses',inr(exp));
+    h+=row('Gross trading margin',inr(r2(r.qty*r.margin)));
+    h+=row('Net profit',`<b class="${sgnCls(profitInternal(r))}">${inr(r2(profitInternal(r)))}</b>`);
+    h+=row('Net profit / Qtl',`<span class="${sgnCls(effMargin(r))}">${inr(r2(effMargin(r)))} /Qtl</span>`);
   }
   h+=row('Customer',dash(r.customer));
   if(r.type==='truck')h+=row('Destination',dash(r.destination));
@@ -1145,7 +1214,7 @@ function updateTrucks(){
   let h;
   if(!all.length)h=`<div class="card empty">${ICON('truck',34)}<b>No truck entries yet</b><p>Record a truck with its quantity, selling price and margin.</p><button class="btn primary" data-action="truck-add">${ICON('plus',16)} Add Truck Entry</button></div>`;
   else if(!rows.length)h=`<div class="card empty">${ICON('inbox',30)}<b>No entries match these filters</b><button class="btn" data-action="clear-filters" data-scope="tk">Clear filters</button></div>`;
-  else h=`<div class="tbl-wrap"><table><thead><tr>${thBtn('tk','date','Date')}${thBtn('tk','truck','Truck')}${thBtn('tk','commodity','Commodity')}${thBtn('tk','qty','Qty (Qtl)','num')}${thBtn('tk','sellPrice','Selling price ₹/Qtl','num')}${thBtn('tk','margin','Margin ₹/Qtl','num')}${thBtn('tk','turnover','Sales turnover','num')}${thBtn('tk','customer','Customer')}${thBtn('tk','destination','Destination')}<th class="plain num">Actions</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${fmtDate(r.date)}</td><td><b>${esc(r.truck)}</b></td><td>${dash(r.commodity)}</td><td class="num">${fmtIN(r.qty)}</td><td class="num">${inr(r.sellPrice)}</td><td class="num ${sgnCls(r.margin)}">${inr(r.margin)}</td><td class="num">${inr(r2(salesOf(r)))}</td><td>${dash(r.customer)}</td><td>${dash(r.destination)}</td><td>${rowActions(r)}</td></tr>`).join('')}</tbody></table></div>${pagerHTML('tk',sorted.length,f.page)}`;
+  else h=`<div class="tbl-wrap"><table><thead><tr>${thBtn('tk','date','Date')}${thBtn('tk','truck','Truck')}${thBtn('tk','commodity','Commodity')}${thBtn('tk','qty','Qty (Qtl)','num')}${thBtn('tk','sellPrice','Selling price ₹/Qtl','num')}${thBtn('tk','margin','Margin ₹/Qtl','num')}${thBtn('tk','turnover','Sales turnover','num')}${thBtn('tk','customer','Customer')}${thBtn('tk','destination','Destination')}<th class="plain num">Actions</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${fmtDate(r.date)}</td><td><b>${esc(r.truck)}</b></td><td>${dash(r.commodity)}</td><td class="num">${fmtIN(r.qty)}</td><td class="num">${inr(r.sellPrice)}</td><td class="num ${sgnCls(r.margin)}">${inr(r.margin)}${expensesOf(r)>0?`<br><small class="muted" title="Expenses: ${inr(expensesOf(r))}">Net: ${inr(r2(effMargin(r)))}</small>`:''}</td><td class="num">${inr(r2(salesOf(r)))}</td><td>${dash(r.customer)}</td><td>${dash(r.destination)}</td><td>${rowActions(r)}</td></tr>`).join('')}</tbody></table></div>${pagerHTML('tk',sorted.length,f.page)}`;
   $('#tkResults').innerHTML=h;
 }
 
@@ -1428,6 +1497,19 @@ const ACTIONS={
   'calc-export':()=>exportCalc(),
   'truck-add':()=>openTruckForm(),
   'truck-save-another':()=>saveTruck(true),
+  'truck-add-extra':()=>{
+    const el=$('#tExtras');if(!el)return;
+    const count=el.querySelectorAll('.truck-extra-row').length;
+    const div=document.createElement('div');
+    div.innerHTML=truckExtraRowHTML({name:'',amount:''},count);
+    el.appendChild(div.firstElementChild);
+    const r=$$('.truck-extra-row [data-tx=name]');if(r.length)r[r.length-1].focus();
+    truckPreview();
+  },
+  'truck-del-extra':t=>{
+    const row=t.closest('.truck-extra-row');
+    if(row){row.remove();truckPreview();}
+  },
   'tx-view':t=>viewTx(t.dataset.id),'tx-edit':t=>editTx(t.dataset.id),'tx-delete':t=>deleteTx(t.dataset.id),
   'tx-export':()=>{const l=sortList(txFiltered(),S.tx.sort);if(!l.length){toast('No records to export','warn');return;}exportTxCSV(l);},
   sort:t=>{const sc=S[t.dataset.scope],k=t.dataset.key;if(sc.sort.key===k)sc.sort.dir=sc.sort.dir==='asc'?'desc':'asc';else{sc.sort={key:k,dir:['date','qty','sellPrice','margin','turnover'].includes(k)?'desc':'asc'};}sc.page=1;t.dataset.scope==='tk'?updateTrucks():updateTx();},

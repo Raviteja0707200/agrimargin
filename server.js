@@ -89,14 +89,24 @@ function cleanRecord(r){
   const createdAt=iso(r.createdAt),updatedAt=iso(r.updatedAt);if(!createdAt||!updatedAt)return null;
   const o={id,type:r.type,date:r.date,qty:r.qty,commodity:str(r.commodity,80),truck:str(r.truck,30),customer:str(r.customer,80),destination:str(r.destination,80),remarks:str(r.remarks,500),sellPrice:null,procPrice:null,margin:null,expenses:null,createdAt,updatedAt};
   if(r.sample===true)o.sample=true;
-  if(r.type==='truck'){if(!num(r.sellPrice)||r.sellPrice<=0||!num(r.margin))return null;o.sellPrice=r.sellPrice;o.margin=r.margin;}
+  function cleanExpenses(e){
+    if(!e||typeof e!=='object')return null;
+    const ex={transport:0,loading:0,other:0,extras:[]};
+    for(const k of ['transport','loading','other']){if(e[k]==null)continue;if(!num(e[k])||e[k]<0)return null;ex[k]=e[k];}
+    if(e.extras!=null){if(!Array.isArray(e.extras)||e.extras.length>30)return null;for(const x of e.extras){if(!x||!num(x.amount)||x.amount<0)return null;ex.extras.push({name:str(x.name,40)||'Expense',amount:x.amount});}}
+    return ex;
+  }
+  if(r.type==='truck'){
+    if(!num(r.sellPrice)||r.sellPrice<=0||!num(r.margin))return null;
+    o.sellPrice=r.sellPrice;o.margin=r.margin;
+    if(r.expenses!=null){const ex=cleanExpenses(r.expenses);if(!ex)return null;o.expenses=ex;}
+  }
   else if(r.type==='margin'){if(!num(r.margin))return null;o.margin=r.margin;}
   else{
     if(!num(r.procPrice)||r.procPrice<0||!num(r.sellPrice)||r.sellPrice<0)return null;
     o.procPrice=r.procPrice;o.sellPrice=r.sellPrice;o.truck='';
-    const e=r.expenses||{},ex={transport:0,loading:0,other:0,extras:[]};
-    for(const k of ['transport','loading','other']){if(e[k]==null)continue;if(!num(e[k])||e[k]<0)return null;ex[k]=e[k];}
-    if(e.extras!=null){if(!Array.isArray(e.extras)||e.extras.length>30)return null;for(const x of e.extras){if(!x||!num(x.amount)||x.amount<0)return null;ex.extras.push({name:str(x.name,40)||'Expense',amount:x.amount});}}
+    const ex=cleanExpenses(r.expenses||{});
+    if(!ex)return null;
     o.expenses=ex;
   }
   return o;
