@@ -419,7 +419,7 @@ const getRec=id=>DB.records.find(r=>r.id===id);
 /* =====================================================================
    STATE
    ===================================================================== */
-const PERIODS=[['today','Today'],['7','Last 7 Days'],['30','Last 30 Days'],['90','Last 90 Days'],['month','This Month'],['prev','Previous Month'],['custom','Custom'],['all','All Time']];
+const PERIODS=[['today','Today'],['7','Last 7 Days'],['30','Last 30 Days'],['90','Last 90 Days'],['month','This Month'],['prev','Previous Month'],['year','This Year'],['custom','Custom'],['all','All Time']];
 const S={
   view:'overview',period:{key:'all',from:'',to:''},
   calc:{editingId:null,draft:null},
@@ -437,6 +437,7 @@ function periodRange(p){
     case '90':return [addDays(t,-89),t];
     case 'month':{const [y,m]=t.split('-').map(Number);return [`${y}-${pad2(m)}-01`,`${y}-${pad2(m)}-${pad2(new Date(Date.UTC(y,m,0)).getUTCDate())}`];}
     case 'prev':{let [y,m]=t.split('-').map(Number);m--;if(m===0){m=12;y--;}return [`${y}-${pad2(m)}-01`,`${y}-${pad2(m)}-${pad2(new Date(Date.UTC(y,m,0)).getUTCDate())}`];}
+    case 'year':{const y=t.split('-')[0];return [`${y}-01-01`,`${y}-12-31`];}
     case 'custom':return [p.from||'0000-01-01',p.to||'9999-12-31'];
     default:return ['0000-01-01','9999-12-31'];
   }
@@ -728,6 +729,152 @@ function exportJSON(){
 }
 
 /* =====================================================================
+   TIMEFRAME REPORTS & 6-MONTH DATA RETENTION
+   ===================================================================== */
+function timeframeRecords(tf){
+  const t=todayStr();
+  switch(tf){
+    case 'daily':return {list:DB.records.filter(r=>r.date===t),label:`Daily Report (${fmtDate(t)})`,name:'daily'};
+    case 'weekly':{const a=addDays(t,-6);return {list:DB.records.filter(r=>r.date>=a&&r.date<=t),label:`Weekly Report (${fmtDate(a)} – ${fmtDate(t)})`,name:'weekly'};}
+    case 'monthly':{const ym=t.slice(0,7);return {list:DB.records.filter(r=>r.date.startsWith(ym)),label:`Monthly Report (${fmtMonthLong(ym)})`,name:'monthly'};}
+    case 'yearly':{const y=t.slice(0,4);return {list:DB.records.filter(r=>r.date.startsWith(y)),label:`Yearly Report (${y})`,name:'yearly'};}
+    default:return {list:sortList(DB.records,{key:'date',dir:'desc'}),label:'Full Data Report (All Time Till Now)',name:'full-data'};
+  }
+}
+function downloadTimeframeReport(tf,fmt){
+  const {list,label,name}=timeframeRecords(tf);
+  if(!list.length&&fmt!=='json'){toast(`No records found for ${name} report`,'warn');return;}
+  if(fmt==='pdf'){
+    download(`agrimargin-${name}-report-${stamp()}.pdf`,pdfReport(list,label));
+    toast(`${label} (PDF) downloaded`);
+  }else if(fmt==='csv'){
+    exportTxCSV(list,`agrimargin-${name}-${stamp()}.csv`);
+  }else if(fmt==='json'){
+    const payload={app:'AgriMargin',version:1,exportedAt:nowIso(),timeframe:tf,records:list};
+    download(`agrimargin-${name}-backup-${stamp()}.json`,JSON.stringify(payload,null,2),'application/json');
+    toast(`${label} (JSON) downloaded`);
+  }
+}
+function openReportsModal(){
+  const t=todayStr();
+  const dCount=DB.records.filter(r=>r.date===t).length;
+  const wCount=DB.records.filter(r=>r.date>=addDays(t,-6)&&r.date<=t).length;
+  const mCount=DB.records.filter(r=>r.date.startsWith(t.slice(0,7))).length;
+  const yCount=DB.records.filter(r=>r.date.startsWith(t.slice(0,4))).length;
+  const aCount=DB.records.length;
+
+  const row=(title,sub,count,tf)=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)">
+      <div>
+        <b style="font-size:14px">${title}</b>
+        <div class="muted" style="font-size:12px;margin-top:2px">${sub} · <span style="font-weight:600;color:var(--text)">${fmtIN(count)} txn${count===1?'':'s'}</span></div>
+      </div>
+      <div class="btnrow" style="flex:none;gap:6px">
+        <button class="btn sm" data-action="dl-report" data-tf="${tf}" data-fmt="pdf" title="Download PDF Report">${ICON('file',14)} PDF</button>
+        <button class="btn sm" data-action="dl-report" data-tf="${tf}" data-fmt="csv" title="Download CSV Spreadsheet">${ICON('download',14)} CSV</button>
+        ${tf==='all'?`<button class="btn sm primary" data-action="dl-report" data-tf="${tf}" data-fmt="json" title="Download Full JSON Backup">${ICON('download',14)} JSON</button>`:''}
+      </div>
+    </div>`;
+
+  Modal.open({
+    title:'Download Reports & Data',
+    body:`<div>
+      <p class="muted" style="margin-bottom:12px;font-size:13px">Download formatted business intelligence reports or raw transaction data for any period.</p>
+      ${row('Daily Report',`Today (${fmtDate(t)})`,dCount,'daily')}
+      ${row('Weekly Report',`Last 7 Days (${fmtDate(addDays(t,-6))} – ${fmtDate(t)})`,wCount,'weekly')}
+      ${row('Monthly Report',`This Month (${fmtMonthLong(t.slice(0,7))})`,mCount,'monthly')}
+      ${row('Yearly Report',`This Year (${t.slice(0,4)})`,yCount,'yearly')}
+      ${row('Full Data Till Now',`All-time trading history`,aCount,'all')}
+    </div>`,
+    footer:`<button class="btn" data-action="modal-close">Close</button>`
+  });
+}
+function getRetentionCutoffDate(){
+  const d=new Date();
+  d.setMonth(d.getMonth()-6);
+  return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+}
+function getExpiredRetentionRecords(){
+  const cutoff=getRetentionCutoffDate();
+  return DB.records.filter(r=>r.date<cutoff);
+}
+function checkRetentionPolicy(compulsoryPrompt){
+  const expired=getExpiredRetentionRecords();
+  if(!expired.length)return false;
+  if(compulsoryPrompt||!Modal.isOpen()){
+    promptRetentionPurge(expired);
+    return true;
+  }
+  return false;
+}
+function promptRetentionPurge(expired){
+  expired=expired||getExpiredRetentionRecords();
+  if(!expired.length){toast('No records older than 6 months found. Everything is within the retention period.','ok');return;}
+  const cutoff=getRetentionCutoffDate();
+  const dates=expired.map(r=>r.date).sort();
+  const oldest=dates[0],newest=dates[dates.length-1];
+  const totQty=expired.reduce((s,r)=>s+(r.qty||0),0);
+  Modal.open({
+    title:'6-Month Retention: Compulsory Archive & Purge',
+    body:`<div data-sticky>
+      <div class="notice warn" style="margin-bottom:12px">
+        <b>Data Retention Policy:</b> Under the 6-month retention policy, records older than 6 months (dated before <b>${fmtDate(cutoff)}</b>) must be automatically deleted.<br>
+        <b>To guarantee zero data loss, the archive MUST be compulsorily downloaded to your device before deletion proceeds.</b>
+      </div>
+      <div class="rows">
+        <div class="r"><span>Records older than 6 months</span><b class="neg">${fmtIN(expired.length)} transaction(s)</b></div>
+        <div class="r"><span>Retention cutoff date</span><b>${fmtDate(cutoff)} (6 months ago)</b></div>
+        <div class="r"><span>Date span of expired records</span><b>${fmtDate(oldest)} – ${fmtDate(newest)}</b></div>
+        <div class="r"><span>Total volume in expired data</span><b>${fmtIN(r2(totQty))} Qtl</b></div>
+      </div>
+      <p class="muted" style="margin-top:14px;font-size:12.5px;line-height:1.5">
+        Clicking below will <b>first download complete JSON and CSV archives</b> to your computer/phone, and then permanently delete these ${expired.length} expired record(s) and sync the deletion.
+      </p>
+      <div class="form-actions" style="margin-top:16px">
+        <button class="btn danger" style="flex:1;padding:12px 14px;font-size:14px;font-weight:700" data-action="purge-retention-compulsory">
+          ${ICON('download',18)} Compulsorily Download Archive & Delete (${expired.length} Records)
+        </button>
+      </div>
+    </div>`
+  });
+}
+function executeRetentionPurge(){
+  const expired=getExpiredRetentionRecords();
+  if(!expired.length){toast('No records older than 6 months found','warn');Modal.close();return;}
+  const cutoff=getRetentionCutoffDate();
+  const n=expired.length;
+  // 1. Download JSON archive
+  const jsonArchive={
+    app:'AgriMargin',
+    type:'6-month-retention-archive',
+    archivedAt:nowIso(),
+    cutoffDate:cutoff,
+    count:n,
+    records:expired
+  };
+  download(`agrimargin-archive-6months-${stamp()}.json`,JSON.stringify(jsonArchive,null,2),'application/json');
+  
+  // 2. Download CSV archive with slight delay so browser doesn't block second download
+  setTimeout(()=>{
+    exportTxCSV(expired,`agrimargin-archive-6months-${stamp()}.csv`);
+  },350);
+
+  // 3. Purge from DB and sync tombstones
+  const expiredIds=new Set(expired.map(r=>r.id));
+  const remaining=DB.records.filter(r=>!expiredIds.has(r.id));
+  dbSetRecords(remaining);
+
+  // 4. Record last purge in localStorage
+  try{
+    localStorage.setItem('agrimargin.v1.lastRetentionPurge',JSON.stringify({at:nowIso(),count:n,cutoff}));
+  }catch(e){}
+
+  Modal.close();
+  toast(`Compulsory archive downloaded! ${n} record(s) older than 6 months have been deleted.`,'ok');
+  render();
+}
+
+/* =====================================================================
    SHELL: nav, theme, banner
    ===================================================================== */
 const NAV=[
@@ -841,7 +988,7 @@ VIEWS.overview=function(){
   const list=periodRecords(),A=aggregate(list),alerts=alertsInPeriod(),b=bucketize(list);
   const mk=r=>r?`${esc(r.id)}${r.truck?' · '+esc(r.truck):''}${r.commodity?' · '+esc(r.commodity):''}`:'';
   const recent=sortList(list,{key:'date',dir:'desc'}).slice(0,6);
-  view().innerHTML=`${pageHead('Overview','Executive summary — '+esc(rangeLabel()))}
+  view().innerHTML=`${pageHead('Overview','Executive summary — '+esc(rangeLabel()),`<button class="btn" data-action="reports-modal">${ICON('download',16)} Download Reports</button>`)}
   ${periodBar()}
   ${DB.records.length?'':onboarding()}
   <section class="kpis" aria-label="Key metrics">
@@ -1181,7 +1328,7 @@ VIEWS.analytics=function(){
   const truckQ=groupStats(list,r=>truckKey(r.truck),(k,arr)=>arr[0].truck).filter(x=>x.key).map(x=>({label:x.label,value:r2(x.qty)})).sort((a,b)=>b.value-a.value).slice(0,12);
   const monthCount=(()=>{const g=new Map();list.forEach(r=>g.set(r.date.slice(0,7),(g.get(r.date.slice(0,7))||0)+1));return [...g.keys()].sort().map(k=>({label:fmtMonth(k),value:g.get(k)}));})();
   const sales=r=>salesOf(r);
-  view().innerHTML=`${pageHead('Analytics & Reports','Trends, distribution and performance — '+esc(rangeLabel()),`<button class="btn" data-action="report-pdf">${ICON('file',16)} Download PDF</button><button class="btn" data-action="analytics-csv">${ICON('download',16)} Export CSV</button>`)}
+  view().innerHTML=`${pageHead('Analytics & Reports','Trends, distribution and performance — '+esc(rangeLabel()),`<button class="btn primary" data-action="reports-modal">${ICON('download',16)} Download Reports</button><button class="btn" data-action="report-pdf">${ICON('file',16)} Current View PDF</button><button class="btn" data-action="analytics-csv">${ICON('download',16)} Current View CSV</button>`)}
   ${periodBar()}
   ${DB.records.length?'':onboarding()}
   ${profitSummaryHTML(list)}
@@ -1212,15 +1359,49 @@ VIEWS.analytics=function(){
 VIEWS.settings=function(){
   const n=DB.records.length,samples=DB.records.filter(r=>r.sample).length;
   const th=document.documentElement.getAttribute('data-theme');
-  view().innerHTML=`${pageHead('Settings & Data Management','Appearance, backup, restore and exports')}
+  const cutoff=getRetentionCutoffDate();
+  const expired=getExpiredRetentionRecords();
+  let lastPurge=null;
+  try{lastPurge=JSON.parse(localStorage.getItem('agrimargin.v1.lastRetentionPurge'));}catch(e){}
+  view().innerHTML=`${pageHead('Settings & Data Management','Appearance, backup, restore, reports and data retention')}
   <div class="settings-grid">
    <section class="card"><h3>Appearance</h3><p class="sub">Executive dark theme is the default.</p>
     <div class="field"><label for="themeSel">Theme</label><select id="themeSel" data-theme-select><option value="dark"${th==='dark'?' selected':''}>Dark</option><option value="light"${th==='light'?' selected':''}>Light</option></select></div></section>
    <section class="card"><h3>Storage</h3><p class="sub">Where your records live</p>
     <div class="rows"><div class="r"><span>Records stored</span><b>${fmtIN(n)}</b></div><div class="r"><span>Storage</span><b>${DB.storageOk&&!DB.writeFailed?'<span class="pos">Browser local storage – OK</span>':'<span class="neg">Not persistent – export a backup</span>'}</b></div></div></section>
    <section class="card"><h3>Sync across devices</h3><p class="sub">Your records are kept in step on every device you sign in to.</p><div id="syncBody"></div></section>
-   <section class="card"><h3>Backup &amp; export</h3><p class="sub">Keep a copy outside the browser</p>
-    <div class="stack"><div class="btnrow"><button class="btn primary" data-action="export-json">${ICON('download',16)} Export all data (JSON)</button><button class="btn" data-action="export-all-pdf">${ICON('file',16)} Download PDF report</button><button class="btn" data-action="export-all-csv">${ICON('download',16)} Export all (CSV)</button></div></div></section>
+   <section class="card"><h3>Download Reports &amp; Backups</h3><p class="sub">Download formatted PDF/CSV reports by period, or full data till now</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:14px">
+      <div class="kpi" style="padding:11px 13px">
+        <div class="l">Daily (Today)</div>
+        <div class="btnrow" style="margin-top:6px"><button class="btn sm" data-action="dl-report" data-tf="daily" data-fmt="pdf">${ICON('file',14)} PDF</button><button class="btn sm" data-action="dl-report" data-tf="daily" data-fmt="csv">${ICON('download',14)} CSV</button></div>
+      </div>
+      <div class="kpi" style="padding:11px 13px">
+        <div class="l">Weekly (Last 7 Days)</div>
+        <div class="btnrow" style="margin-top:6px"><button class="btn sm" data-action="dl-report" data-tf="weekly" data-fmt="pdf">${ICON('file',14)} PDF</button><button class="btn sm" data-action="dl-report" data-tf="weekly" data-fmt="csv">${ICON('download',14)} CSV</button></div>
+      </div>
+      <div class="kpi" style="padding:11px 13px">
+        <div class="l">Monthly (${fmtMonth(todayStr().slice(0,7))})</div>
+        <div class="btnrow" style="margin-top:6px"><button class="btn sm" data-action="dl-report" data-tf="monthly" data-fmt="pdf">${ICON('file',14)} PDF</button><button class="btn sm" data-action="dl-report" data-tf="monthly" data-fmt="csv">${ICON('download',14)} CSV</button></div>
+      </div>
+      <div class="kpi" style="padding:11px 13px">
+        <div class="l">Yearly (${todayStr().slice(0,4)})</div>
+        <div class="btnrow" style="margin-top:6px"><button class="btn sm" data-action="dl-report" data-tf="yearly" data-fmt="pdf">${ICON('file',14)} PDF</button><button class="btn sm" data-action="dl-report" data-tf="yearly" data-fmt="csv">${ICON('download',14)} CSV</button></div>
+      </div>
+    </div>
+    <div class="stack"><div class="btnrow"><button class="btn primary" data-action="export-json">${ICON('download',16)} Full Data Till Now (JSON)</button><button class="btn" data-action="export-all-pdf">${ICON('file',16)} Full PDF Report</button><button class="btn" data-action="export-all-csv">${ICON('download',16)} Full CSV Data</button><button class="btn ghost" data-action="reports-modal">${ICON('filter',16)} All Options</button></div></div></section>
+   <section class="card"><h3>6-Month Data Retention &amp; Automatic Purge</h3><p class="sub">Transactions older than 6 months are automatically purged, with a mandatory archive download beforehand.</p>
+    <div class="rows" style="margin-bottom:12px">
+      <div class="r"><span>Retention cutoff date</span><b>${fmtDate(cutoff)} (6 months ago)</b></div>
+      <div class="r"><span>Expired records status</span><b>${expired.length?`<span class="badge neg">${expired.length} record(s) due for compulsory deletion</span>`:`<span class="badge pos">All clear — 0 records expired</span>`}</b></div>
+      ${lastPurge?`<div class="r"><span>Last retention purge</span><b>${fmtDate(lastPurge.cutoff)} (${lastPurge.count} records purged)</b></div>`:''}
+    </div>
+    ${expired.length?`
+      <div class="notice warn" style="margin-bottom:12px"><b>Action Required:</b> ${expired.length} records are older than 6 months. Download the archive to complete the compulsory deletion.</div>
+      <button class="btn danger" data-action="purge-retention-compulsory">${ICON('download',16)} Compulsorily Download Archive &amp; Delete (${expired.length} records)</button>
+    `:`
+      <button class="btn" data-action="check-retention">${ICON('check',16)} Check Retention Status Now</button>
+    `}</section>
    <section class="card"><h3>Restore from backup</h3><p class="sub">Choose a JSON file exported from AgriMargin. It is validated first; nothing changes until you confirm.</p>
     <div class="field"><label for="importFile">Backup file (.json)</label><input id="importFile" type="file" accept=".json,application/json" data-import></div></section>
    <section class="card"><h3>Sample data</h3><p class="sub">Explore the dashboard with demo records, then remove them in one click.</p>
@@ -1342,7 +1523,11 @@ const ACTIONS={
   'export-all-csv':()=>{if(!DB.records.length){toast('No records to export','warn');return;}exportTxCSV(sortList(DB.records,{key:'date',dir:'desc'}));},
   'export-all-pdf':()=>{if(!DB.records.length){toast('No records to report on','warn');return;}download(`agrimargin-report-${stamp()}.pdf`,pdfReport(DB.records,'All time'));toast('PDF report downloaded');},
   'import-merge':()=>applyImport('merge'),'import-replace':()=>applyImport('replace'),
-  'sample-load':()=>loadSample(),'sample-remove':()=>removeSample(),'clear-all':()=>clearAll()
+  'sample-load':()=>loadSample(),'sample-remove':()=>removeSample(),'clear-all':()=>clearAll(),
+  'reports-modal':()=>openReportsModal(),
+  'dl-report':t=>downloadTimeframeReport(t.dataset.tf,t.dataset.fmt),
+  'purge-retention-compulsory':()=>executeRetentionPurge(),
+  'check-retention':()=>{const exp=getExpiredRetentionRecords();if(exp.length)promptRetentionPurge(exp);else toast('All records are within the 6-month retention window.','ok');}
 };
 document.addEventListener('click',e=>{
   const t=e.target.closest('[data-action]');if(!t||t.disabled)return;
@@ -1600,12 +1785,13 @@ setInterval(()=>{if(syncEnabled()&&!Sync.busy&&!document.hidden)syncNow();},4500
    ===================================================================== */
 try{
   buildShell();dbLoad();route();
+  checkRetentionPolicy();
   syncProbe().then(()=>{if(Sync.mode==='login')showLogin();else if(syncEnabled())syncNow();renderSyncStatus();});
 }catch(err){
   document.getElementById('view').innerHTML='<div class="card"><h3>Something went wrong</h3><p class="muted">'+esc(err&&err.message)+'</p></div>';
   if(window.console)console.error(err);
 }
-window.AgriMargin={version:'1.2',_test:{Sync,syncNow,getRec,dbSetRecords,fmtIN,inr,standardMetrics,profitInternal,effMargin,aggregate,DB,S,sanitizeRecord,pdfReport,makePDF,computeAlerts,periodRange,reportRows,toCSV}};
+window.AgriMargin={version:'1.2',_test:{Sync,syncNow,getRec,dbSetRecords,fmtIN,inr,standardMetrics,profitInternal,effMargin,aggregate,DB,S,sanitizeRecord,pdfReport,makePDF,computeAlerts,periodRange,reportRows,toCSV,timeframeRecords,downloadTimeframeReport,getRetentionCutoffDate,getExpiredRetentionRecords,executeRetentionPurge,checkRetentionPolicy,promptRetentionPurge,openReportsModal}};
 })();
 </script>
 </body>
