@@ -3,6 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#d9a441">
+<link rel="manifest" href="/manifest.json">
 <title>AgriMargin – Commodity Trading Management</title>
 <script>
 try{var _t=localStorage.getItem('agrimargin.v1.theme');if(_t==='light'||_t==='dark')document.documentElement.setAttribute('data-theme',_t);}catch(e){}
@@ -1793,6 +1795,9 @@ try{
 }catch(err){
   document.getElementById('view').innerHTML='<div class="card"><h3>Something went wrong</h3><p class="muted">'+esc(err&&err.message)+'</p></div>';
   if(window.console)console.error(err);
+}
+if(typeof navigator !== 'undefined' && 'serviceWorker' in navigator && location.protocol.startsWith('http')){
+  window.addEventListener('load',()=>{navigator.serviceWorker.register('/sw.js').catch(()=>{});});
 }
 window.AgriMargin={version:'1.2',_test:{Sync,syncNow,getRec,dbSetRecords,fmtIN,inr,standardMetrics,profitInternal,effMargin,aggregate,DB,S,sanitizeRecord,pdfReport,makePDF,computeAlerts,periodRange,reportRows,toCSV,getWeekRange,getMonthRange,getYearRange,oldRecordsInfo,recordsInRange,RETENTION_DAYS}};
 })();

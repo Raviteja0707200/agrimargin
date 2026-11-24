@@ -39,6 +39,8 @@ const SECRET=process.env.SESSION_SECRET||(()=>{
 })();
 const HTML_FILE=fs.existsSync(path.join(__dirname,'index.html'))?path.join(__dirname,'index.html'):path.join(__dirname,'index truck.html');
 const INDEX=fs.readFileSync(HTML_FILE);
+const SW_PATH=path.join(__dirname,'sw.js');
+const MANIFEST_PATH=path.join(__dirname,'manifest.json');
 
 /* ---------- storage ---------- */
 function loadState(){
@@ -238,6 +240,14 @@ const server=http.createServer(async(req,res)=>{
     const p=new URL(req.url,'http://x').pathname;
     securityHeaders(res);
     if(p==='/healthz')return text(res,200,'ok');
+    if(p==='/sw.js'&&fs.existsSync(SW_PATH)){
+      res.writeHead(200,{'Content-Type':'application/javascript; charset=utf-8','Cache-Control':'no-cache'});
+      return res.end(fs.readFileSync(SW_PATH));
+    }
+    if(p==='/manifest.json'&&fs.existsSync(MANIFEST_PATH)){
+      res.writeHead(200,{'Content-Type':'application/manifest+json; charset=utf-8','Cache-Control':'no-cache'});
+      return res.end(fs.readFileSync(MANIFEST_PATH));
+    }
     if(p==='/'||p==='/index.html'){
       if(req.method!=='GET'&&req.method!=='HEAD')return text(res,405,'Method not allowed');
       res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-cache'});return res.end(req.method==='HEAD'?undefined:INDEX);
